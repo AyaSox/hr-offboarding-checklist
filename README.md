@@ -1,4 +1,4 @@
-# Employee Offboarding Checklist System
+# HR Employee Offboarding Checklist System
 
 ![.NET](https://img.shields.io/badge/.NET-8.0-purple)
 ![C#](https://img.shields.io/badge/C%23-12.0-blue)
@@ -20,40 +20,40 @@ A comprehensive Employee Offboarding Checklist System designed to streamline the
 
 ## ?? **Advanced Enterprise Features**
 
-### ? **1. Email Notification System**
+### ?? **1. Email Notification System**
 - **Automated Notifications**: Task assignments, completion updates, overdue reminders
 - **HTML Email Templates**: Professional, branded email communications
 - **Background Service**: Automated daily reminder system
 - **Multi-Department Routing**: Intelligent email routing based on task department
 
-### ? **2. Document Management System**
+### ?? **2. Document Management System**
 - **File Upload/Download**: Secure document handling with validation
 - **Multiple File Types**: PDF, DOC, DOCX, JPG, PNG support
 - **File Size Limits**: 10MB max with proper error handling
 - **Document Categories**: Exit interviews, asset returns, clearance certificates
 - **Security**: Path traversal protection and file type validation
 
-### ? **3. RESTful API Layer**
+### ?? **3. RESTful API Layer**
 - **Complete REST API**: Full CRUD operations for external integrations
 - **Swagger Documentation**: Interactive API documentation at `/api-docs`
 - **JSON/XML Support**: Multiple response formats
 - **Authentication**: Secure API endpoints with JWT support
 - **Filtering & Pagination**: Advanced query capabilities
 
-### ? **4. Advanced Analytics & Reporting**
+### ?? **4. Advanced Analytics & Reporting**
 - **Interactive Charts**: Department performance, monthly trends, completion distributions
 - **Chart.js Integration**: Professional data visualizations
 - **Export Functionality**: CSV and JSON report exports
 - **Performance Metrics**: Completion times, success rates, top performers
 - **Time-based Analytics**: Historical trends and patterns
 
-### ? **5. Background Services**
+### ?? **5. Background Services**
 - **Automated Reminders**: Daily background service for overdue tasks
 - **Process Monitoring**: Automatic progress notifications
 - **Data Cleanup**: Archival of old completed processes
 - **Performance Optimization**: Efficient resource usage
 
-### ? **6. Performance & Optimization**
+### ?? **6. Performance & Optimization**
 - **Database Indexing**: Strategic indexes for fast queries
 - **Memory Caching**: Improved response times
 - **Async/Await**: Non-blocking operations throughout
@@ -63,27 +63,27 @@ A comprehensive Employee Offboarding Checklist System designed to streamline the
 
 ```
 ?? Controllers/
-?  ?? HomeController.cs (Dashboard)
-?  ?? OffboardingProcessesController.cs (Main CRUD)
-?  ?? AnalyticsController.cs (Advanced reporting)
-?  ?? Api/OffboardingApiController.cs (REST API)
+?? ?? HomeController.cs (Dashboard)
+?? ?? OffboardingProcessesController.cs (Main CRUD)
+?? ?? AnalyticsController.cs (Advanced reporting)
+?? ?? Api/OffboardingApiController.cs (REST API)
 ?? Services/
-?  ?? EmailService.cs (Email notifications)
-?  ?? DocumentService.cs (File management)
+?? ?? EmailService.cs (Email notifications)
+?? ?? DocumentService.cs (File management)
 ?? BackgroundServices/
-?  ?? OffboardingReminderService.cs (Automated tasks)
+?? ? OffboardingReminderService.cs (Automated tasks)
 ?? Models/
-?  ?? OffboardingProcess.cs
-?  ?? ChecklistItem.cs
-?  ?? OffboardingDocument.cs
-?  ?? ViewModels/ (Analytics, Dashboard)
+?? ?? OffboardingProcess.cs
+?? ? ChecklistItem.cs
+?? ?? OffboardingDocument.cs
+?? ?? ViewModels/ (Analytics, Dashboard)
 ?? Data/
-?  ?? ApplicationDbContext.cs
-?  ?? DbInitializer.cs
+?? ??? ApplicationDbContext.cs
+?? ?? DbInitializer.cs
 ?? Views/
-   ?? Home/ (Dashboard)
-   ?? OffboardingProcesses/ (CRUD operations)
-   ?? Analytics/ (Advanced reporting)
+?? ?? Home/ (Dashboard)
+?? ?? OffboardingProcesses/ (CRUD operations)
+?? ?? Analytics/ (Advanced reporting)
 ```
 
 ## ??? **Technology Stack**
@@ -148,8 +148,8 @@ A comprehensive Employee Offboarding Checklist System designed to streamline the
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/offboarding-checklist.git
-   cd offboarding-checklist
+   git clone https://github.com/AyaSox/HROffboardingChecklist.git
+   cd HROffboardingChecklist
    ```
 
 2. **Install dependencies**
@@ -237,7 +237,7 @@ services:
 - `GET /analytics/exportreport?format=csv` - Export CSV
 - `GET /analytics/exportreport?format=json` - Export JSON
 
-## ?? **Performance Features**
+## ? **Performance Features**
 
 ### **Database Optimization**
 - Strategic indexing on frequently queried fields
@@ -322,12 +322,30 @@ services:
 
 ## ?? **Contact**
 
-**[Your Name]**
-- LinkedIn: [Your LinkedIn Profile]
-- Email: [your.email@example.com]
-- Portfolio: [Your Portfolio Website]
-- GitHub: [Your GitHub Profile]
+**Developer Portfolio Project**
+- Repository: [HROffboardingChecklist](https://github.com/AyaSox/HROffboardingChecklist)
+- Live Demo: [Coming Soon - Render Deployment]
+- Documentation: See `/Documentation` folder for detailed guides
 
 ---
 
 *This project demonstrates enterprise-level .NET development skills including background services, API design, data visualization, file management, email systems, and modern web architecture - perfect for showcasing technical capabilities to South African employers seeking junior .NET developers.*
+
+## ?? **Deployment**
+
+This application is deployment-ready for cloud platforms:
+
+### **Render Deployment**
+- Configured for SQLite in production
+- Docker containerization included
+- Environment variable configuration
+- Automatic database migrations
+
+### **Environment Variables for Production**
+```bash
+DATABASE_PROVIDER=Sqlite
+ASPNETCORE_ENVIRONMENT=Production
+SQLITE_DB_PATH=/opt/render/project/src/data/offboarding.db
+```
+
+The system automatically switches between SQL Server (development) and SQLite (production) based on configuration, ensuring seamless deployment across different environments.
