@@ -14,10 +14,10 @@ if (!string.IsNullOrEmpty(port))
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
-// Decide database provider: SqlServer (default) or Sqlite (for Render/production)
+// Decide database provider: Default to SQLite in production, SqlServer for development
 var dbProvider = builder.Configuration["DatabaseProvider"]
                  ?? Environment.GetEnvironmentVariable("DATABASE_PROVIDER")
-                 ?? "SqlServer";
+                 ?? (builder.Environment.IsProduction() ? "Sqlite" : "SqlServer");
 
 if (dbProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
 {
@@ -25,7 +25,9 @@ if (dbProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase))
     var sqlitePath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH");
     if (string.IsNullOrWhiteSpace(sqlitePath))
     {
-        var dataDir = Path.Combine(AppContext.BaseDirectory, "data");
+        var dataDir = builder.Environment.IsProduction() 
+            ? "/app/data" 
+            : Path.Combine(AppContext.BaseDirectory, "data");
         Directory.CreateDirectory(dataDir);
         sqlitePath = Path.Combine(dataDir, "offboarding.db");
     }
