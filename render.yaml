@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hr-offboarding-checklist
+    env: docker
+    plan: free
+    autoDeploy: true
+    dockerfilePath: OffboardingChecklist/Dockerfile
+    buildContext: OffboardingChecklist
+    envVars:
+      - key: DATABASE_PROVIDER
+        value: Sqlite
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: SQLITE_DB_PATH
+        value: /app/data/offboarding.db
+    disk:
+      name: app-data
+      mountPath: /app/data
+      sizeGB: 1
