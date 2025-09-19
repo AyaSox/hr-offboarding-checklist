@@ -6,8 +6,13 @@ WORKDIR /src
 COPY OffboardingChecklist/OffboardingChecklist.csproj ./OffboardingChecklist/
 RUN dotnet restore OffboardingChecklist/OffboardingChecklist.csproj
 
-# Copy source code and build
+# Copy all source files (ensure Data folder is included)
 COPY OffboardingChecklist/ ./OffboardingChecklist/
+
+# Verify Data folder exists
+RUN ls -la ./OffboardingChecklist/Data/ || echo "Data folder missing!"
+
+# Build and publish
 RUN dotnet publish OffboardingChecklist/OffboardingChecklist.csproj -c Release -o /app/publish --no-restore
 
 # Use the official .NET 8 runtime image for the final image
