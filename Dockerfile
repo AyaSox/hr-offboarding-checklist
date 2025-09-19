@@ -2,15 +2,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy project file and restore dependencies
-COPY *.csproj ./
-RUN dotnet restore
+# Copy project file and restore dependencies (explicitly target the csproj)
+COPY OffboardingChecklist.csproj ./
+RUN dotnet restore OffboardingChecklist.csproj
 
 # Copy all source files
 COPY . .
 
-# Build and publish
-RUN dotnet publish -c Release -o /app/publish --no-restore
+# Build and publish the app project explicitly (avoid building the solution)
+RUN dotnet publish OffboardingChecklist.csproj -c Release -o /app/publish --no-restore
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
