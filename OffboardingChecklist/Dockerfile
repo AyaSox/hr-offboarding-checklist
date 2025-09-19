@@ -3,26 +3,32 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy project file and restore dependencies
-COPY ["OffboardingChecklist.csproj", "."]
-RUN dotnet restore "OffboardingChecklist.csproj"
+COPY OffboardingChecklist.csproj ./
+RUN dotnet restore OffboardingChecklist.csproj
 
 # Copy source code and build
 COPY . .
-RUN dotnet build "OffboardingChecklist.csproj" -c Release -o /app/build
-
-# Publish the application
-RUN dotnet publish "OffboardingChecklist.csproj" -c Release -o /app/publish
+RUN dotnet publish OffboardingChecklist.csproj -c Release -o /app/publish --no-restore
 
 # Use the official .NET 8 runtime image for the final image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+
+# Create data directory for SQLite (mounted or ephemeral)
+RUN mkdir -p /app/data
 
 # Copy the published application
 COPY --from=build /app/publish .
 
-# Expose the port the app runs on
-EXPOSE 80
-EXPOSE 443
+# Environment
+# Render provides PORT; bind Kestrel to it
+ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT}
+
+# Expose default port for local runs (Render ignores EXPOSE)
+EXPOSE 8080 80
+
+# Drop privileges (good practice)
+USER $APP_UID
 
 # Set the entry point
 ENTRYPOINT ["dotnet", "OffboardingChecklist.dll"]
