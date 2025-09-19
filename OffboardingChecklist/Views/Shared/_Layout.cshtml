@@ -1,0 +1,362 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject OffboardingChecklist.Data.ApplicationDbContext Context
+@inject OffboardingChecklist.Services.INotificationService NotificationService
+
+@{
+    var notifications = new List<OffboardingChecklist.Models.Notification>();
+    var unreadCount = 0;
+    
+    if (SignInManager.IsSignedIn(User))
+    {
+        var userId = UserManager.GetUserId(User);
+        unreadCount = await NotificationService.GetUnreadCountAsync(userId);
+    }
+
+    string currentController = ViewContext?.RouteData?.Values["controller"]?.ToString() ?? string.Empty;
+    string currentAction = ViewContext?.RouteData?.Values["action"]?.ToString() ?? string.Empty;
+    string ActiveLink(string controller, string action = "")
+    {
+        if (!string.IsNullOrEmpty(action))
+        {
+            return (string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase)) ? "active" : string.Empty;
+        }
+        return string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Employee Offboarding System</title>
+    
+    <!-- Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+</head>
+<body>
+    @Html.AntiForgeryToken()
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-building me-2" aria-hidden="true"></i>
+                    Employee Offboarding System
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveLink("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index" aria-label="Dashboard">
+                                <i class="fas fa-tachometer-alt me-1" aria-hidden="true"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveLink("OffboardingProcesses", "Index")" asp-area="" asp-controller="OffboardingProcesses" asp-action="Index" aria-label="Processes">
+                                <i class="fas fa-clipboard-list me-1" aria-hidden="true"></i> Processes
+                            </a>
+                        </li>
+                        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown @ActiveLink("Analytics", "Index")">
+                                <a class="nav-link dropdown-toggle" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Management menu">
+                                    <i class="fas fa-cogs me-1" aria-hidden="true"></i> Management
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="managementDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Departments" asp-action="Index">
+                                        <i class="fas fa-building me-1" aria-hidden="true"></i> Departments
+                                    </a></li>
+                                    <li><a class="dropdown-item" asp-controller="TaskTemplates" asp-action="Index">
+                                        <i class="fas fa-tasks me-1" aria-hidden="true"></i> Task Templates
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item @ActiveLink("Analytics", "Index")" asp-area="" asp-controller="Analytics" asp-action="Index">
+                                        <i class="fas fa-chart-bar me-1" aria-hidden="true"></i> Analytics
+                                    </a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link @ActiveLink("Home", "Help")" asp-area="" asp-controller="Home" asp-action="Help" aria-label="Help">
+                                <i class="fas fa-question-circle me-1" aria-hidden="true"></i> Help
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <!-- User menu and notifications -->
+                    <ul class="navbar-nav">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <!-- Notifications Dropdown -->
+                            <li class="nav-item dropdown me-3">
+                                <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
+                                    <i class="fas fa-bell" aria-hidden="true"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationCount" style="display: none;">
+                                        0
+                                    </span>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="notificationsDropdown" style="width: 320px; max-height: 400px;">
+                                    <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-bell me-1" aria-hidden="true"></i> Notifications</span>
+                                        <a href="@Url.Action("Index", "Notifications")" class="small text-decoration-none">See all</a>
+                                    </div>
+                                    <div class="dropdown-divider my-0"></div>
+                                    <div id="notificationContent" style="max-height: 300px; overflow-y: auto;">
+                                        <div class="text-center p-3">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status" aria-label="Loading">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mb-0 mt-2 small">Loading notifications...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            
+                            <!-- User Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="User menu">
+                                    <i class="fas fa-user-circle me-1" aria-hidden="true"></i>
+                                    Hello @User.Identity?.Name!
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                        <i class="fas fa-user-cog me-1" aria-hidden="true"></i> Profile
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                            <button type="submit" class="dropdown-item" aria-label="Logout">
+                                                <i class="fas fa-sign-out-alt me-1" aria-hidden="true"></i> Logout
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register" aria-label="Register">
+                                    <i class="fas fa-user-plus me-1" aria-hidden="true"></i> Register
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Login" aria-label="Login">
+                                    <i class="fas fa-sign-in-alt me-1" aria-hidden="true"></i> Login
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            <!-- Toast Container for Notifications -->
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="toast show" role="alert" data-bs-delay="5000" aria-live="polite" aria-atomic="true">
+                        <div class="toast-header bg-success text-white">
+                            <i class="fas fa-check-circle me-2" aria-hidden="true"></i>
+                            <strong class="me-auto">Success</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">@TempData["Success"]</div>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="toast show" role="alert" data-bs-delay="8000" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header bg-danger text-white">
+                            <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                            <strong class="me-auto">Error</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">@TempData["Error"]</div>
+                    </div>
+                }
+                @if (TempData["Warning"] != null)
+                {
+                    <div class="toast show" role="alert" data-bs-delay="6000" aria-live="polite" aria-atomic="true">
+                        <div class="toast-header bg-warning text-white">
+                            <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+                            <strong class="me-auto">Warning</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">@TempData["Warning"]</div>
+                    </div>
+                }
+                @if (TempData["Info"] != null)
+                {
+                    <div class="toast show" role="alert" data-bs-delay="5000" aria-live="polite" aria-atomic="true">
+                        <div class="toast-header bg-info text-white">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            <strong class="me-auto">Information</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">@TempData["Info"]</div>
+                    </div>
+                }
+            </div>
+            
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer text-white-50">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year - Employee Offboarding System - 
+            <span class="ms-2">
+                <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
+                Secure & Professional
+            </span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Load notifications -->
+    <script>
+        $(document).ready(function() {
+            // Load notification count on page load
+            loadNotificationCount();
+            
+            // Refresh notification count every 5 minutes
+            setInterval(loadNotificationCount, 300000);
+        });
+        
+        function loadNotificationCount() {
+            $.ajax({
+                url: '/Notifications/GetUnreadCount',
+                type: 'GET',
+                success: function(data) {
+                    const badge = $('#notificationCount');
+                    if(data.count > 0) {
+                        badge.text(data.count).show();
+                    } else {
+                        badge.hide();
+                    }
+                },
+                error: function() {
+                    console.warn('Could not load notification count');
+                }
+            });
+        }
+        
+        // Load notifications
+        $('#notificationsDropdown').on('show.bs.dropdown', function () {
+            loadNotifications();
+        });
+        
+        function loadNotifications() {
+            $.ajax({
+                url: '/Notifications/GetLatest',
+                type: 'GET',
+                success: function(data) {
+                    if(data && data.length > 0) {
+                        var html = '';
+                        $.each(data, function(i, notification) {
+                            var iconClass = getNotificationIcon(notification.type);
+                            var badgeClass = notification.priority === 0 ? 'bg-info' : 
+                                            notification.priority === 1 ? 'bg-warning' : 'bg-danger';
+                            var readClass = notification.isRead ? 'text-muted' : 'fw-bold';
+                            
+                            html += '<a class="dropdown-item notification-item ' + readClass + '" href="' + 
+                                (notification.actionUrl || '/Notifications') + '" onclick="markAsRead(' + notification.id + ', event)" aria-label="Open notification">' +
+                                '<div class="d-flex align-items-center">' +
+                                '<div class="flex-shrink-0 me-2">' +
+                                '<i class="' + iconClass + '" aria-hidden="true"></i>' +
+                                '</div>' +
+                                '<div class="flex-grow-1">' +
+                                '<div class="notification-title">' + notification.title + '</div>' +
+                                '<div class="notification-message small">' + notification.message + '</div>' +
+                                '<div class="notification-time small text-muted">' + notification.timeAgo + '</div>' +
+                                '</div>' +
+                                '</div>' +
+                                '</a>';
+                                
+                            if(i < data.length - 1) {
+                                html += '<div class="dropdown-divider"></div>';
+                            }
+                        });
+                        $('#notificationContent').html(html);
+                    } else {
+                        $('#notificationContent').html('<div class="text-center p-3"><i class="fas fa-check-circle text-success mb-2" aria-hidden="true"></i><p class="mb-0 small">No new notifications</p></div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to load notifications:', error);
+                    $('#notificationContent').html('<div class="text-center p-3"><i class="fas fa-exclamation-circle text-danger mb-2" aria-hidden="true"></i><p class="mb-0 small">Could not load notifications</p></div>');
+                }
+            });
+        }
+        
+        function getNotificationIcon(type) {
+            switch(type) {
+                case 0: return 'fas fa-play-circle text-success';
+                case 1: return 'fas fa-check-circle text-primary';
+                case 2: return 'fas fa-exclamation-triangle text-danger';
+                case 3: return 'fas fa-check text-success';
+                case 4: return 'fas fa-bell text-warning';
+                case 5: return 'fas fa-clock text-info';
+                default: return 'fas fa-info-circle text-secondary';
+            }
+        }
+        
+        function markAsRead(id, event) {
+            // Prevent the default action
+            if (event) {
+                event.preventDefault();
+            }
+            
+            // Send AJAX request to mark as read
+            $.ajax({
+                url: '/Notifications/MarkAsRead',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: id }),
+                headers: {
+                    'RequestVerificationToken': $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if(response.success) {
+                        // Redirect to the action URL if provided
+                        if (event && event.currentTarget && event.currentTarget.href) {
+                            window.location.href = event.currentTarget.href;
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to mark notification as read:', error);
+                }
+            });
+        }
+        
+        // Initialize toasts
+        $('.toast').each(function() {
+            new bootstrap.Toast(this).show();
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

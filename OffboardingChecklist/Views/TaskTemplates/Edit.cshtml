@@ -1,0 +1,171 @@
+@model OffboardingChecklist.Models.TaskTemplate
+
+@{
+    ViewData["Title"] = "Edit Task Template";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="fas fa-edit text-primary"></i>
+        Edit Task Template
+    </h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks text-primary"></i>
+                    Template Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="TaskName" class="form-label">Task Name <span class="text-danger">*</span></label>
+                            <input asp-for="TaskName" class="form-control" placeholder="e.g., Return laptop and hardware" />
+                            <span asp-validation-for="TaskName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Department" class="form-label">Department <span class="text-danger">*</span></label>
+                            <select asp-for="Department" class="form-select" asp-items="ViewBag.Departments">
+                                <option value="">Select Department</option>
+                            </select>
+                            <span asp-validation-for="Department" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional description or instructions for this task"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="DaysFromLastWorkingDay" class="form-label">Days from Last Working Day</label>
+                            <input asp-for="DaysFromLastWorkingDay" class="form-control" type="number" />
+                            <div class="form-text">
+                                0 = on last working day, negative = days before, positive = days after
+                            </div>
+                            <span asp-validation-for="DaysFromLastWorkingDay" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="DependsOnTemplateId" class="form-label">Depends On Task</label>
+                            <select asp-for="DependsOnTemplateId" class="form-select" asp-items="ViewBag.Templates">
+                                <option value="">No Dependency</option>
+                            </select>
+                            <div class="form-text">
+                                This task can only be completed after the selected task is finished
+                            </div>
+                            <span asp-validation-for="DependsOnTemplateId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input asp-for="IsRequired" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsRequired" class="form-check-label">
+                                    Required Task
+                                </label>
+                                <div class="form-text">
+                                    Required tasks must be completed before the process can be closed
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Active Template
+                                </label>
+                                <div class="form-text">
+                                    Only active templates are used when creating new processes
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Update Template
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle text-info"></i>
+                    Template Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Created By:</strong></td>
+                        <td>@Model.CreatedBy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Created On:</strong></td>
+                        <td>@Model.CreatedOn.ToString("MMM dd, yyyy HH:mm")</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb text-warning"></i>
+                    Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Use clear, specific task names
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Set appropriate due dates relative to last working day
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Use dependencies for tasks that must be done in order
+                    </li>
+                    <li class="mb-0">
+                        <i class="fas fa-check text-success me-2"></i>
+                        Mark critical tasks as required
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-populate department field if editing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any specific JavaScript for the edit form if needed
+        });
+    </script>
+}

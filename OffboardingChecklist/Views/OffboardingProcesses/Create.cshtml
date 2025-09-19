@@ -1,0 +1,100 @@
+@model OffboardingChecklist.Models.OffboardingProcess
+
+@{
+    ViewData["Title"] = "Submit Offboarding Request";
+}
+
+<div class="page-header mb-3">
+    <h1>
+        <i class="fas fa-user-minus text-primary"></i>
+        Submit Offboarding Request
+    </h1>
+</div>
+
+<div class="subtle-strip mb-4">
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Note:</strong> This will submit an offboarding request for HR/Admin approval. Once approved, the offboarding process will start and tasks will be assigned to departments.
+    </div>
+
+    <form asp-action="Create" class="row g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="EmployeeName" class="control-label">Employee Name</label>
+                <input asp-for="EmployeeName" class="form-control" placeholder="Full name of the employee leaving" required />
+                <span asp-validation-for="EmployeeName" class="text-danger"></span>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="JobTitle" class="control-label">Job Title</label>
+                <input asp-for="JobTitle" class="form-control" placeholder="Employee's job title/position" required />
+                <span asp-validation-for="JobTitle" class="text-danger"></span>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="EmploymentStartDate" class="control-label">Employment Start Date</label>
+                <input asp-for="EmploymentStartDate" class="form-control" type="date" required />
+                <span asp-validation-for="EmploymentStartDate" class="text-danger"></span>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label asp-for="LastWorkingDay" class="control-label">Last Working Day</label>
+                <input asp-for="LastWorkingDay" class="form-control" type="date" required />
+                <span asp-validation-for="LastWorkingDay" class="text-danger"></span>
+                <small class="form-text text-muted">This date will be used as the due date for all offboarding tasks.</small>
+            </div>
+        </div>
+        
+        <div class="col-12">
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane me-1"></i> Submit Request
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function () {
+            // Add date validation
+            $('form').submit(function (e) {
+                const startDate = new Date($('#EmploymentStartDate').val());
+                const endDate = new Date($('#LastWorkingDay').val());
+                const today = new Date();
+                
+                if (startDate > today) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Invalid Start Date',
+                        text: 'Employment start date cannot be in the future.',
+                        icon: 'error'
+                    });
+                }
+                
+                if (startDate > endDate) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Invalid Date Range',
+                        text: 'Last working day must be after employment start date.',
+                        icon: 'error'
+                    });
+                }
+            });
+        });
+    </script>
+}

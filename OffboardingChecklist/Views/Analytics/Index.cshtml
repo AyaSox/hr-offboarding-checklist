@@ -1,0 +1,422 @@
+@model OffboardingChecklist.Models.AnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Analytics Dashboard";
+}
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="page-header mb-3">
+    <h2 class="h4 mb-0">
+        <i class="fas fa-chart-bar text-primary fa-lg"></i>
+        Analytics Dashboard
+    </h2>
+</div>
+
+<div class="subtle-strip mb-3">
+    <!-- Overview Cards -->
+    <div class="row g-3 mb-0">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body p-3 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">@Model.TotalProcesses</div>
+                            <small class="opacity-75">Total Processes</small>
+                        </div>
+                        <i class="fas fa-clipboard-list fa-lg opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body p-3 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">@Model.ActiveProcesses</div>
+                            <small class="opacity-75">Active Processes</small>
+                        </div>
+                        <i class="fas fa-play-circle fa-lg opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body p-3 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">@Model.CompletedProcesses</div>
+                            <small class="opacity-75">Completed</small>
+                        </div>
+                        <i class="fas fa-check-circle fa-lg opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white h-100">
+                <div class="card-body p-3 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="h4 mb-0">@Model.CompletionRate.ToString("F0")%</div>
+                            <small class="opacity-75">Completion Rate</small>
+                        </div>
+                        <i class="fas fa-percentage fa-lg opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Task Overview -->
+<div class="row mb-3 g-3">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body p-3 text-center">
+                <div class="small text-muted">Total Tasks</div>
+                <div class="h4 text-primary mb-0">@Model.TotalTasks</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body p-3 text-center">
+                <div class="small text-muted">Completed Tasks</div>
+                <div class="h4 text-success mb-0">@Model.CompletedTasks</div>
+                <small class="text-muted">@Model.TaskCompletionRate.ToString("F1")%</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body p-3 text-center">
+                <div class="small text-muted">Overdue Tasks</div>
+                <div class="h4 text-danger mb-0">@Model.OverdueTasks</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-3 g-3">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <h6 class="mb-0 section-title">Department Performance</h6>
+            </div>
+            <div class="card-body p-2" style="min-height: 260px; height: 260px;">
+                <canvas id="departmentChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <h6 class="mb-0 section-title">Monthly Trends</h6>
+            </div>
+            <div class="card-body p-2" style="min-height: 260px; height: 260px;">
+                <canvas id="monthlyChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Performance Table -->
+@if (Model.DepartmentPerformance.Any())
+{
+    <div class="row mb-3 g-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header py-2">
+                    <h6 class="mb-0 section-title">
+                        <i class="fas fa-building text-primary"></i>
+                        Department Performance Details
+                    </h6>
+                </div>
+                <div class="card-body p-2">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Total</th>
+                                    <th>Done</th>
+                                    <th>Pending</th>
+                                    <th>Overdue</th>
+                                    <th>Rate</th>
+                                    <th>Avg Days</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dept in Model.DepartmentPerformance)
+                                {
+                                    <tr>
+                                        <td><strong>@dept.Department</strong></td>
+                                        <td>@dept.TotalTasks</td>
+                                        <td><span class="badge bg-success">@dept.CompletedTasks</span></td>
+                                        <td><span class="badge bg-warning">@dept.PendingTasks</span></td>
+                                        <td><span class="badge bg-danger">@dept.OverdueTasks</span></td>
+                                        <td>
+                                            <div class="progress" style="height: 12px;">
+                                                <div class="progress-bar @(dept.CompletionRate >= 80 ? "bg-success" : dept.CompletionRate >= 60 ? "bg-warning" : "bg-danger")" 
+                                                     role="progressbar" 
+                                                     style="width: @dept.CompletionRate%">
+                                                    @dept.CompletionRate.ToString("F0")%
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@dept.AverageCompletionDays.ToString("F1")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Top Performers and Recent Activity -->
+<div class="row mb-3 g-3">
+    <div class="col-md-6">
+        @if (Model.TopPerformers.Any())
+        {
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <h6 class="mb-0 section-title">
+                        <i class="fas fa-star text-warning"></i>
+                        Top Performers
+                    </h6>
+                </div>
+                <div class="card-body p-2">
+                    @foreach (var performer in Model.TopPerformers.Take(5))
+                    {
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <div>
+                                <small class="fw-bold">@performer.Name</small>
+                                <br>
+                                <small class="text-muted">@performer.TasksCompleted tasks</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-@(performer.PerformanceRating == "Excellent" ? "success" : performer.PerformanceRating == "Good" ? "warning" : "danger")">
+                                    @performer.PerformanceRating
+                                </span>
+                                <br>
+                                <small class="text-muted">@performer.AverageCompletionDays.ToString("F1")d avg</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="col-md-6">
+        @if (Model.RecentActivity.Any())
+        {
+            <div class="card h-100">
+                <div class="card-header py-2">
+                    <h6 class="mb-0 section-title">
+                        <i class="fas fa-clock text-info"></i>
+                        Recent Activity
+                    </h6>
+                </div>
+                <div class="card-body p-2" style="max-height: 220px; overflow-y: auto;">
+                    @foreach (var activity in Model.RecentActivity.Take(10))
+                    {
+                        <div class="d-flex align-items-start py-2 border-bottom">
+                            <div class="flex-shrink-0 me-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <small class="fw-bold">@activity.Action</small>
+                                <br>
+                                <small class="text-muted">by @activity.CompletedBy · @activity.TimeAgo</small>
+                                <br>
+                                <small class="badge bg-light text-dark">@activity.Department</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Process Completion Stats -->
+<div class="row mb-3 g-3">
+    <div class="col-md-3">
+        <div class="card text-center h-100">
+            <div class="card-body p-3">
+                <div class="small text-muted">Average Completion</div>
+                <div class="h5 text-primary mb-0">@Model.AverageCompletionDays.ToString("F1") days</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center h-100">
+            <div class="card-body p-3">
+                <div class="small text-muted">Pending Approval</div>
+                <div class="h5 text-warning mb-0">@Model.PendingApprovalProcesses</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header py-2">
+                <h6 class="mb-0">Task Completion by Type</h6>
+            </div>
+            <div class="card-body p-2" style="min-height: 260px; height: 260px;">
+                <canvas id="taskCompletionChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            const DEBUG = false;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                loadDepartmentChart();
+                loadMonthlyChart();
+                loadTaskCompletionChart();
+            });
+
+            function handleResponse(resp) {
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                return resp.json();
+            }
+
+            function showChartError(id, error) {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const container = canvas.parentElement;
+                container.innerHTML = `
+                    <div class="text-center p-3">
+                        <i class="fas fa-exclamation-triangle text-warning mb-2"></i>
+                        <p class="mb-0 small text-muted">Unable to load chart data</p>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="location.reload()">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>`;
+                if (DEBUG) console.error(error);
+            }
+
+            function showLoading(id) {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const container = canvas.parentElement;
+                canvas.style.display = 'none';
+                const loading = document.createElement('div');
+                loading.className = 'text-center p-3 chart-loading';
+                loading.innerHTML = `
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>`;
+                container.appendChild(loading);
+            }
+
+            function hideLoading(id) {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const container = canvas.parentElement;
+                const loading = container.querySelector('.chart-loading');
+                if (loading) loading.remove();
+                canvas.style.display = 'block';
+            }
+
+            function renderChartOrError(id, config) {
+                const canvas = document.getElementById(id);
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) { showChartError(id, 'No 2D context'); return; }
+                try {
+                    new Chart(ctx, config);
+                } catch (err) {
+                    showChartError(id, err);
+                }
+            }
+
+            function loadDepartmentChart() {
+                const id = 'departmentChart';
+                showLoading(id);
+                fetch('/Analytics/GetChartData?chartType=departmentperformance')
+                    .then(handleResponse)
+                    .then(data => {
+                        hideLoading(id);
+                        renderChartOrError(id, {
+                            type: 'bar',
+                            data,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { position: 'top' } },
+                                scales: { y: { beginAtZero: true } }
+                            }
+                        });
+                    })
+                    .catch(err => showChartError(id, err));
+            }
+
+            function loadMonthlyChart() {
+                const id = 'monthlyChart';
+                showLoading(id);
+                fetch('/Analytics/GetChartData?chartType=monthlytrends')
+                    .then(handleResponse)
+                    .then(data => {
+                        hideLoading(id);
+                        renderChartOrError(id, {
+                            type: 'line',
+                            data,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { position: 'top' } },
+                                elements: { line: { tension: 0.3 } },
+                                scales: { y: { beginAtZero: true } }
+                            }
+                        });
+                    })
+                    .catch(err => showChartError(id, err));
+            }
+
+            function loadTaskCompletionChart() {
+                const id = 'taskCompletionChart';
+                showLoading(id);
+                fetch('/Analytics/GetChartData?chartType=taskcompletion')
+                    .then(handleResponse)
+                    .then(data => {
+                        hideLoading(id);
+                        renderChartOrError(id, {
+                            type: 'bar',
+                            data,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: 'y',
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    x: {
+                                        beginAtZero: true,
+                                        max: 100,
+                                        ticks: { callback: (v) => v + '%' }
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch(err => showChartError(id, err));
+            }
+        })();
+    </script>
+}

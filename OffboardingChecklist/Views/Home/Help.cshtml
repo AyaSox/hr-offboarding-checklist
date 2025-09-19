@@ -1,0 +1,365 @@
+@{
+    ViewData["Title"] = "Help & Documentation";
+}
+
+<div class="page-header mb-3">
+    <h1>
+        <i class="fas fa-question-circle text-primary"></i>
+        Help & Documentation
+    </h1>
+</div>
+
+<div class="subtle-strip mb-4">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link active" id="v-pills-overview-tab" data-bs-toggle="pill" data-bs-target="#v-pills-overview" type="button" role="tab">
+                            <i class="fas fa-home me-2"></i>Overview
+                        </button>
+                        <button class="nav-link" id="v-pills-getting-started-tab" data-bs-toggle="pill" data-bs-target="#v-pills-getting-started" type="button" role="tab">
+                            <i class="fas fa-play me-2"></i>Getting Started
+                        </button>
+                        <button class="nav-link" id="v-pills-processes-tab" data-bs-toggle="pill" data-bs-target="#v-pills-processes" type="button" role="tab">
+                            <i class="fas fa-clipboard-list me-2"></i>Managing Processes
+                        </button>
+                        <button class="nav-link" id="v-pills-tasks-tab" data-bs-toggle="pill" data-bs-target="#v-pills-tasks" type="button" role="tab">
+                            <i class="fas fa-tasks me-2"></i>Tasks & Completion
+                        </button>
+                        <button class="nav-link" id="v-pills-notifications-tab" data-bs-toggle="pill" data-bs-target="#v-pills-notifications" type="button" role="tab">
+                            <i class="fas fa-bell me-2"></i>Notifications
+                        </button>
+                        <button class="nav-link" id="v-pills-management-tab" data-bs-toggle="pill" data-bs-target="#v-pills-management" type="button" role="tab">
+                            <i class="fas fa-cogs me-2"></i>Management Features
+                        </button>
+                        <button class="nav-link" id="v-pills-troubleshooting-tab" data-bs-toggle="pill" data-bs-target="#v-pills-troubleshooting" type="button" role="tab">
+                            <i class="fas fa-tools me-2"></i>Troubleshooting
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="tab-content" id="v-pills-tabContent">
+                        <!-- Overview Tab -->
+                        <div class="tab-pane fade show active" id="v-pills-overview" role="tabpanel">
+                            <h3 class="section-title">Welcome to the Employee Offboarding System</h3>
+                            <p>This system helps manage the complete employee offboarding process from initiation to completion.</p>
+                            
+                            <h4 class="section-title">Key Features:</h4>
+                            <ul>
+                                <li><strong>Process Management:</strong> Create and track offboarding processes</li>
+                                <li><strong>Task Assignment:</strong> Automatically assign tasks to departments</li>
+                                <li><strong>Progress Tracking:</strong> Monitor completion status in real-time</li>
+                                <li><strong>Notifications:</strong> Automated email and in-app notifications</li>
+                                <li><strong>Analytics:</strong> Comprehensive reporting and insights</li>
+                                <li><strong>Document Management:</strong> Upload and manage offboarding documents</li>
+                            </ul>
+
+                            <h4 class="section-title">User Roles:</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5><i class="fas fa-user text-primary"></i> Regular Users</h5>
+                                            <ul>
+                                                <li>Submit offboarding requests</li>
+                                                <li>View active processes</li>
+                                                <li>Complete assigned tasks</li>
+                                                <li>Upload documents</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h5><i class="fas fa-user-tie text-success"></i> HR/Admin Users</h5>
+                                            <ul>
+                                                <li>Approve/reject requests</li>
+                                                <li>Manage departments & templates</li>
+                                                <li>View analytics & reports</li>
+                                                <li>Close completed processes</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Getting Started Tab -->
+                        <div class="tab-pane fade" id="v-pills-getting-started" role="tabpanel">
+                            <h3 class="section-title">Getting Started</h3>
+                            
+                            <h4 class="section-title">For Regular Users:</h4>
+                            <ol>
+                                <li><strong>Login:</strong> Use your company credentials to access the system</li>
+                                <li><strong>Create Request:</strong> Click "Create Offboarding Request" on the main page</li>
+                                <li><strong>Fill Details:</strong> Enter employee information and last working day</li>
+                                <li><strong>Wait for Approval:</strong> HR will review and approve your request</li>
+                                <li><strong>Track Progress:</strong> Monitor task completion on the details page</li>
+                            </ol>
+
+                            <h4 class="section-title">For HR/Admin Users:</h4>
+                            <ol>
+                                <li><strong>Review Requests:</strong> Check pending approvals on the dashboard</li>
+                                <li><strong>Approve/Reject:</strong> Review request details and make decisions</li>
+                                <li><strong>Monitor Progress:</strong> Track departmental task completion</li>
+                                <li><strong>Manage System:</strong> Use Management menu for departments and templates</li>
+                                <li><strong>View Analytics:</strong> Access reports for insights and performance</li>
+                            </ol>
+                        </div>
+
+                        <!-- Processes Tab -->
+                        <div class="tab-pane fade" id="v-pills-processes" role="tabpanel">
+                            <h3 class="section-title">Managing Offboarding Processes</h3>
+                            
+                            <h4 class="section-title">Process Lifecycle:</h4>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="timeline">
+                                        <div class="timeline-item">
+                                            <span class="badge bg-warning">1. Pending Approval</span>
+                                            <p>Request submitted and waiting for HR review</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <span class="badge bg-info">2. Approved</span>
+                                            <p>HR approved the request and tasks are created</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <span class="badge bg-primary">3. Active</span>
+                                            <p>Departments working on assigned tasks</p>
+                                        </div>
+                                        <div class="timeline-item">
+                                            <span class="badge bg-success">4. Closed</span>
+                                            <p>All tasks completed and process finalized</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="section-title">Status Indicators:</h4>
+                            <ul>
+                                <li><span class="badge bg-warning">Pending</span> - Awaiting approval</li>
+                                <li><span class="badge bg-primary">Active</span> - Tasks in progress</li>
+                                <li><span class="badge bg-success">Completed</span> - All tasks done</li>
+                                <li><span class="badge bg-danger">Overdue</span> - Past due date</li>
+                                <li><span class="badge bg-secondary">Rejected</span> - Request denied</li>
+                            </ul>
+                        </div>
+
+                        <!-- Tasks Tab -->
+                        <div class="tab-pane fade" id="v-pills-tasks" role="tabpanel">
+                            <h3 class="section-title">Tasks & Completion</h3>
+                            
+                            <h4 class="section-title">Task Types by Department:</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-laptop text-info"></i> IT Department</h5>
+                                    <ul>
+                                        <li>Return laptop and hardware</li>
+                                        <li>Disable access cards and accounts</li>
+                                        <li>Update team distribution lists</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-users text-success"></i> Human Capital</h5>
+                                    <ul>
+                                        <li>Conduct exit interview</li>
+                                        <li>Collect company property</li>
+                                        <li>Knowledge transfer documentation</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-dollar-sign text-warning"></i> Finance</h5>
+                                    <ul>
+                                        <li>Credit card reconciliation</li>
+                                        <li>Final expense processing</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5><i class="fas fa-calculator text-primary"></i> Payroll</h5>
+                                    <ul>
+                                        <li>Clear staff advances</li>
+                                        <li>Process final pay calculation</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <h4 class="section-title">Completing Tasks:</h4>
+                            <ol>
+                                <li>Navigate to the process details page</li>
+                                <li>Find your department's tasks</li>
+                                <li>Click "Complete" button</li>
+                                <li>Add comments (optional but recommended)</li>
+                                <li>Confirm completion</li>
+                            </ol>
+
+                            <div class="alert alert-info">
+                                <strong>Note:</strong> Only the person who completed a task or HR/Admin can undo completion.
+                            </div>
+                        </div>
+
+                        <!-- Notifications Tab -->
+                        <div class="tab-pane fade" id="v-pills-notifications" role="tabpanel">
+                            <h3 class="section-title">Notifications System</h3>
+                            
+                            <h4 class="section-title">Notification Types:</h4>
+                            <ul>
+                                <li><strong>In-App Notifications:</strong> Bell icon in the top navigation</li>
+                                <li><strong>Email Notifications:</strong> Sent to your registered email</li>
+                            </ul>
+
+                            <h4 class="section-title">You'll receive notifications for:</h4>
+                            <ul>
+                                <li>New task assignments</li>
+                                <li>Task completions in your processes</li>
+                                <li>Process approvals/rejections</li>
+                                <li>Overdue task reminders</li>
+                                <li>Process completion</li>
+                            </ul>
+
+                            <h4 class="section-title">Managing Notifications:</h4>
+                            <ol>
+                                <li>Click the bell icon to view recent notifications</li>
+                                <li>Click "See all" to view complete history</li>
+                                <li>Click on a notification to mark as read and navigate</li>
+                                <li>Use "Mark all as read" to clear unread status</li>
+                            </ol>
+                        </div>
+
+                        <!-- Management Tab -->
+                        <div class="tab-pane fade" id="v-pills-management" role="tabpanel">
+                            <h3 class="section-title">Management Features (HR/Admin Only)</h3>
+                            
+                            <h4 class="section-title">Department Management:</h4>
+                            <ul>
+                                <li>Add/edit department information</li>
+                                <li>Set department email addresses</li>
+                                <li>Assign department managers</li>
+                                <li>Activate/deactivate departments</li>
+                            </ul>
+
+                            <h4 class="section-title">Task Templates:</h4>
+                            <ul>
+                                <li>Create reusable task templates</li>
+                                <li>Set task dependencies</li>
+                                <li>Define due date offsets</li>
+                                <li>Import/export templates via CSV</li>
+                            </ul>
+
+                            <h4 class="section-title">Analytics Dashboard:</h4>
+                            <ul>
+                                <li>Department performance metrics</li>
+                                <li>Process completion trends</li>
+                                <li>Task completion statistics</li>
+                                <li>Top performer identification</li>
+                            </ul>
+                        </div>
+
+                        <!-- Troubleshooting Tab -->
+                        <div class="tab-pane fade" id="v-pills-troubleshooting" role="tabpanel">
+                            <h3 class="section-title">Troubleshooting</h3>
+                            
+                            <h4 class="section-title">Common Issues:</h4>
+                            
+                            <div class="accordion" id="troubleshootingAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                            Can't create a new process
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                        <div class="accordion-body">
+                                            <strong>Solution:</strong> Ensure you're logged in and have the necessary permissions. All authenticated users can create requests.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                            Not receiving email notifications
+                                        </button>
+                                    </h2>
+                                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                        <div class="accordion-body">
+                                            <strong>Solution:</strong> Check your spam folder and ensure your email address is correct in your profile.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                            Can't complete a task
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                        <div class="accordion-body">
+                                            <strong>Solution:</strong> Check if the task has dependencies that need to be completed first, or if the process is still active.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                                            Analytics page not loading
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#troubleshootingAccordion">
+                                        <div class="accordion-body">
+                                            <strong>Solution:</strong> Ensure you have HR or Admin role. Contact your administrator if you should have access.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 class="section-title">Contact Support:</h4>
+                            <div class="alert alert-info">
+                                <p><strong>For technical issues:</strong> Contact your IT department</p>
+                                <p><strong>For process-related questions:</strong> Contact HR at hr@company.co.za</p>
+                                <p><strong>For urgent issues:</strong> Call the IT helpdesk</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    background: #007bff;
+    border-radius: 50%;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+</style>

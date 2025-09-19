@@ -1,0 +1,824 @@
+@using System.Security.Claims
+@model OffboardingChecklist.Models.OffboardingProcess
+
+@{
+    ViewData["Title"] = $"Offboarding: {Model.EmployeeName}";
+    bool userIsHR = false;
+    var userName = User?.Identity?.Name ?? string.Empty;
+    var emailClaim = User?.FindFirst(ClaimTypes.Email)?.Value ?? string.Empty;
+    var identifier = !string.IsNullOrEmpty(emailClaim) ? emailClaim : userName;
+
+    bool? vbIsHR = ViewBag.IsHR as bool?;
+    if (vbIsHR.HasValue)
+    {
+        userIsHR = vbIsHR.Value;
+    }
+    else
+    {
+        userIsHR = User.IsInRole(OffboardingChecklist.Models.ApplicationRoles.HR)
+                   || User.IsInRole(OffboardingChecklist.Models.ApplicationRoles.Admin);
+    }
+}
+
+<div class="page-header mb-3">
+    <h1>
+        <i class="@Model.StatusIcon text-primary"></i>
+        @Model.EmployeeName
+    </h1>
+</div>
+
+<div class="subtle-strip mb-4">
+    <div class="row">
+        <div class="col-md-8">
+            <p class="section-muted mb-0">
+                <strong>@Model.JobTitle</strong> · @Model.YearsOfService.ToString("F1") years of service
+                <br>
+                <small>Last working day: @Model.LastWorkingDay.ToString("MMM dd, yyyy")</small>
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <partial name="_StatusBadge" model="Model" />
+            <br>
+            @if (Model.Status == OffboardingChecklist.Models.ProcessStatus.PendingApproval)
+            {
+                <small class="text-muted">Awaiting HR/Admin approval</small>
+            }
+            else if (Model.Status == OffboardingChecklist.Models.ProcessStatus.Approved)
+            {
+                <small class="text-muted">
+                    Approved by @Model.ApprovedBy on @Model.ApprovedOn?.ToString("MMM dd, yyyy HH:mm")
+                </small>
+            }
+            else if (Model.Status == OffboardingChecklist.Models.ProcessStatus.Rejected)
+            {
+                <small class="text-muted">
+                    Rejected by @Model.RejectedBy on @Model.RejectedOn?.ToString("MMM dd, yyyy HH:mm")
+                </small>
+            }
+            else if (Model.IsClosed)
+            {
+                <small class="text-muted">
+                    Closed by @Model.ClosedBy on @Model.ClosedOn?.ToString("MMM dd, yyyy HH:mm")
+                </small>
+            }
+        </div>
+    </div>
+</div>
+
+@if (userIsHR && Model.Status == OffboardingChecklist.Models.ProcessStatus.PendingApproval)
+{
+    <div class="card border-warning mb-4">
+        <div class="card-body">
+            <h5 class="mb-2 section-title"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Approval Required</h5>
+            <p class="mb-3">This offboarding process is pending approval. Please review the details and approve or reject the process.</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <form asp-action="ApproveProcess" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-success me-2" onclick="return confirmApprove(event)">
+                            <i class="fas fa-check me-1"></i> Approve Process
+                        </button>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                        <i class="fas fa-times me-1"></i> Reject Process
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Status == OffboardingChecklist.Models.ProcessStatus.Rejected)
+{
+    <div class="alert alert-danger" role="alert">
+        <h6 class="alert-heading">
+            <i class="fas fa-times-circle me-2"></i>Process Rejected
+        </h6>
+        <p class="mb-1"><strong>Rejected by:</strong> @Model.RejectedBy</p>
+        <p class="mb-1"><strong>Rejection Date:</strong> @Model.RejectedOn?.ToString("MMM dd, yyyy HH:mm")</p>
+        <p class="mb-0"><strong>Reason:</strong> @Model.RejectionReason</p>
+    </div>
+}
+
+@if (Model.IsActive && userIsHR)
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="mb-2 section-title"><i class="fas fa-cogs text-primary"></i> Process Actions</h5>
+            <form asp-action="CloseProcess" asp-route-id="@Model.Id" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-outline-success" onclick="return confirmClose(event)">
+                    <i class="fas fa-check"></i> Close Process (HR/Admin Only)
+                </button>
+            </form>
+        </div>
+    </div>
+}
+
+@if (userIsHR && (Model.Status == OffboardingChecklist.Models.ProcessStatus.PendingApproval || 
+                  Model.Status == OffboardingChecklist.Models.ProcessStatus.Rejected || 
+                  (Model.Status == OffboardingChecklist.Models.ProcessStatus.Active && !Model.ChecklistItems.Any(c => c.IsCompleted))))
+{
+    <div class="card mb-4 border-danger">
+        <div class="card-body">
+            <h5 class="mb-2 section-title text-danger"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h5>
+            <div class="row">
+                <div class="col-md-8">
+                    <p class="mb-2">Permanently delete this offboarding process. This action cannot be undone.</p>
+                    <div class="alert alert-warning py-2">
+                        <small>
+                            <strong>Note:</strong> Only processes without completed tasks can be deleted. 
+                            @if (Model.Status == OffboardingChecklist.Models.ProcessStatus.PendingApproval)
+                            {
+                                <span>This pending process can be deleted if created in error.</span>
+                            }
+                            else if (Model.Status == OffboardingChecklist.Models.ProcessStatus.Rejected)
+                            {
+                                <span>This rejected process can be deleted to clean up records.</span>
+                            }
+                            else
+                            {
+                                <span>This active process has no completed tasks yet and can be deleted.</span>
+                            }
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Delete Process
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Sections below remain, but strip the gradient headers in favor of section-title -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title section-title"><i class="fas fa-chart-line text-info"></i> Progress Overview</h5>
+                @if (Model.ChecklistItems.Any())
+                {
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar bg-@(Model.ProgressPercent == 100 ? "success" : Model.StatusColor)" 
+                             role="progressbar" 
+                             style="width: @Model.ProgressPercent%">
+                            @Model.ProgressPercent.ToString("F0")%
+                        </div>
+                    </div>
+                    <p class="mb-0">
+                        @Model.ChecklistItems.Count(c => c.IsCompleted) of @Model.ChecklistItems.Count() tasks completed
+                    </p>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Tasks will be created when process is approved</p>
+                }
+                
+                @if (Model.OverdueTasksCount > 0)
+                {
+                    <div class="alert alert-danger mt-2 py-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>@Model.OverdueTasksCount</strong> overdue task(s)
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title section-title">Employment Details</h6>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <strong>Started:</strong> @Model.EmploymentStartDate.ToString("MMM dd, yyyy")<br>
+                        <strong>Service:</strong> @Model.YearsOfService.ToString("F1") years<br>
+                        <strong>Final Day:</strong> @Model.LastWorkingDay.ToString("MMM dd, yyyy")
+                        @if (!Model.IsClosed && Model.LastWorkingDay < DateTime.Now)
+                        {
+                            <span class="text-danger"> (Already left)</span>
+                        }
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-title section-title">Process Details</h6>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <strong>Initiated:</strong> @Model.StartDate.ToString("MMM dd, yyyy")<br>
+                        <strong>By:</strong> @Model.InitiatedBy<br>
+                        <strong>Duration:</strong> @Model.ProcessDurationDays days<br>
+                        <strong>Status:</strong> <partial name="_StatusBadge" model="Model" />
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.IsActive && !Model.IsClosed)
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-2 section-title"><i class="fas fa-file-upload text-primary"></i> Document Upload</h5>
+                    <form asp-controller="Documents" asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-3">
+                        <input type="hidden" name="processId" value="@Model.Id" />
+                        <div class="col-md-4">
+                            <label for="file" class="form-label">Select Document</label>
+                            <input type="file" class="form-control" name="file" id="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt" required>
+                            <div class="form-text">Max 10MB. Allowed: PDF, DOC, DOCX, JPG, PNG, TXT</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="documentType" class="form-label">Document Type</label>
+                            <select class="form-select" name="documentType" required>
+                                <option value="">Choose...</option>
+                                <option value="ExitInterview">Exit Interview</option>
+                                <option value="AssetReturnForm">Asset Return Form</option>
+                                <option value="FinalPayslip">Final Payslip</option>
+                                <option value="ClearanceCertificate">Clearance Certificate</option>
+                                <option value="HandoverDocument">Handover Document</option>
+                                <option value="AccessCardReturn">Access Card Return</option>
+                                <option value="NonDisclosureAgreement">Non-Disclosure Agreement</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload"></i> Upload Document
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0 section-title"><i class="fas fa-folder-open text-success"></i> Uploaded Documents</h5>
+                    <a class="btn btn-sm btn-outline-primary" asp-controller="Documents" asp-action="DownloadAll" asp-route-processId="@Model.Id" aria-label="Download all documents as ZIP">
+                        <i class="fas fa-file-archive me-1"></i> Download All
+                    </a>
+                </div>
+                <div id="documents-container">
+                    <p class="text-muted">Loading documents...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.ChecklistItems.Any() && (Model.IsActive || userIsHR))
+{
+    var itemsByDepartment = Model.ChecklistItems.GroupBy(c => c.Department).ToList();
+
+    foreach (var departmentGroup in itemsByDepartment.OrderBy(g => g.Key))
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="mb-3 section-title"><i class="fas fa-building text-primary"></i> @departmentGroup.Key Department</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%">Task</th>
+                                <th style="width: 15%">Due Date</th>
+                                <th style="width: 10%">Status</th>
+                                <th style="width: 15%">Completed By</th>
+                                <th style="width: 15%">Completed On</th>
+                                @if (Model.IsActive)
+                                {
+                                    <th style="width: 15%">Actions</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in departmentGroup.OrderBy(i => i.DueDate))
+                            {
+                                var rowClass = item.IsCompleted ? "table-success" : (item.IsOverdue ? "table-danger" : "");
+                                var canUndo = userIsHR || (item.CompletedBy == identifier);
+                                
+                                <tr class="@rowClass" id="task-row-@item.Id">
+                                    <td>
+                                        @if (item.IsCompleted)
+                                        {
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        }
+                                        else if (item.IsOverdue)
+                                        {
+                                            <i class="fas fa-exclamation-triangle text-danger"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-clock text-warning"></i>
+                                        }
+                                        <strong>@item.TaskName</strong>
+                                    </td>
+                                    <td>
+                                        @if (item.DueDate.HasValue)
+                                        {
+                                            <span class="@(item.IsOverdue ? "text-danger fw-bold" : "")">
+                                                @item.DueDate.Value.ToString("MMM dd, yyyy")
+                                            </span>
+                                            @if (item.IsOverdue)
+                                            {
+                                                <br><small class="text-danger">@((DateTime.Now - item.DueDate.Value).Days) days overdue</small>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No due date</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.IsCompleted)
+                                        {
+                                            <span class="badge bg-success">Completed</span>
+                                        }
+                                        else if (item.IsOverdue)
+                                        {
+                                            <span class="badge bg-danger">Overdue</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">Pending</span>
+                                        }
+                                    </td>
+                                    <td>@item.CompletedBy</td>
+                                    <td>@item.CompletedOn?.ToString("MMM dd, yyyy HH:mm")</td>
+                                    @if (Model.IsActive)
+                                    {
+                                        <td>
+                                            @if (!item.IsCompleted)
+                                            {
+                                                <button type="button" class="btn btn-success btn-sm" onclick="showCompleteForm(@item.Id)">
+                                                    <i class="fas fa-check"></i> Complete
+                                                </button>
+                                            }
+                                            else if (canUndo)
+                                            {
+                                                <form asp-action="UncompleteItem" asp-route-itemId="@item.Id" method="post" style="display: inline;">
+                                                    <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirmUndo(event, '@item.TaskName')">
+                                                        <i class="fas fa-undo"></i> Undo
+                                                    </button>
+                                                </form>
+                                            }
+                                            
+                                            @if (item.TaskComments.Any())
+                                            {
+                                                <button type="button" class="btn btn-outline-info btn-sm" onclick="showComments(@item.Id)">
+                                                    <i class="fas fa-comments"></i> History (@item.TaskComments.Count)
+                                                </button>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                                
+                                <!-- Hidden completion form row -->
+                                @if (!item.IsCompleted && Model.IsActive)
+                                {
+                                    <tr id="complete-form-@item.Id" style="display: none;" class="table-light">
+                                        <td colspan="6">
+                                            <form asp-action="CompleteItem" method="post" class="p-3">
+                                                <input type="hidden" name="itemId" value="@item.Id" />
+                                                <div class="row">
+                                                    <div class="col-md-8">
+                                                        <div class="form-group">
+                                                            <label for="comments-input-@item.Id" class="form-label">Comments (optional):</label>
+                                                            <textarea name="comments" id="comments-input-@item.Id" class="form-control" rows="2" placeholder="Add completion notes, handover details, or any important information..."></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-4 d-flex align-items-end">
+                                                        <div class="form-group">
+                                                            <button type="submit" class="btn btn-success me-2">
+                                                                <i class="fas fa-check"></i> Mark Complete
+                                                            </button>
+                                                            <button type="button" class="btn btn-secondary" onclick="hideCompleteForm(@item.Id)">
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                                
+                                <!-- Hidden comments history row -->
+                                @if (item.TaskComments.Any())
+                                {
+                                    <tr id="comments-history-@item.Id" style="display: none;" class="table-light">
+                                        <td colspan="6">
+                                            <div class="p-3">
+                                                <h6><i class="fas fa-comments"></i> Comment History</h6>
+                                                @foreach (var comment in item.TaskComments.OrderByDescending(c => c.CreatedOn))
+                                                {
+                                                    <div class="border-start border-3 border-info ps-3 mb-2">
+                                                        <div class="fw-bold">@comment.CreatedBy</div>
+                                                        <div class="text-muted small">@comment.CreatedOn.ToString("MMM dd, yyyy HH:mm")</div>
+                                                        <div class="mt-1">@comment.Comment</div>
+                                                    </div>
+                                                }
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="hideComments(@item.Id)">
+                                                    <i class="fas fa-times"></i> Close
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+else if (!Model.ChecklistItems.Any() && !userIsHR)
+{
+    <div class="alert alert-info" role="alert">
+        <h6 class="alert-heading">
+            <i class="fas fa-info-circle me-2"></i>Process Pending
+        </h6>
+        <p class="mb-0">This offboarding process is pending approval. Tasks will be available once the process is approved by HR/Admin.</p>
+    </div>
+}
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<!-- Rejection Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="fas fa-times-circle text-danger me-2"></i>Reject Process
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="RejectProcess" asp-route-id="@Model.Id" method="post">
+                <div class="modal-body">
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Warning:</strong> This action will reject the offboarding process and notify the initiator.
+                    </div>
+                    <div class="form-group">
+                        <label for="rejectionReason" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                        <textarea name="rejectionReason" id="rejectionReason" class="form-control" rows="3" placeholder="Please provide a reason for rejecting this process..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-1"></i> Reject Process
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Delete Process Permanently
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="DeleteProcess" asp-route-id="@Model.Id" method="post">
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        <strong>DANGER:</strong> This action will permanently delete the entire offboarding process and cannot be undone.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>The following will be deleted:</h6>
+                        <ul>
+                            <li>Process record for <strong>@Model.EmployeeName</strong></li>
+                            <li>All associated tasks (@Model.ChecklistItems.Count tasks)</li>
+                            <li>All task comments and history</li>
+                            <li>All uploaded documents</li>
+                            <li>All related notifications</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="p-3 bg-light border rounded">
+                            <strong>Process Details:</strong><br>
+                            <small>
+                                Employee: @Model.EmployeeName<br>
+                                Job Title: @Model.JobTitle<br>
+                                Status: @Model.StatusText<br>
+                                Initiated: @Model.StartDate.ToString("MMM dd, yyyy") by @Model.InitiatedBy
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmationText" class="form-label">
+                            Type <code>DELETE</code> to confirm deletion <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="confirmationText" id="confirmationText" class="form-control" 
+                               placeholder="Type DELETE here" required autocomplete="off">
+                        <small class="form-text text-muted">This confirmation is required to prevent accidental deletions.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="deleteConfirmBtn" disabled>
+                        <i class="fas fa-trash me-1"></i> Permanently Delete Process
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Sweet Alert 2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Sweet Alert 2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    
+    <script>
+        function showCompleteForm(itemId) {
+            hideAllForms();
+            const taskRow = document.getElementById('task-row-' + itemId);
+            const completeButton = taskRow.querySelector('.btn-success');
+            completeButton.style.display = 'none';
+            
+            const formRow = document.getElementById('complete-form-' + itemId);
+            formRow.style.display = 'table-row';
+            
+            const textarea = document.getElementById('comments-input-' + itemId);
+            if (textarea) {
+                textarea.focus();
+            }
+        }
+        
+        function hideCompleteForm(itemId) {
+            const taskRow = document.getElementById('task-row-' + itemId);
+            const completeButton = taskRow.querySelector('.btn-success');
+            completeButton.style.display = 'inline-block';
+            
+            const formRow = document.getElementById('complete-form-' + itemId);
+            formRow.style.display = 'none';
+            
+            const textarea = document.getElementById('comments-input-' + itemId);
+            if (textarea) {
+                textarea.value = '';
+            }
+        }
+
+        function showComments(itemId) {
+            hideAllForms();
+            const commentsRow = document.getElementById('comments-history-' + itemId);
+            if (commentsRow) {
+                commentsRow.style.display = 'table-row';
+            }
+        }
+
+        function hideComments(itemId) {
+            const commentsRow = document.getElementById('comments-history-' + itemId);
+            if (commentsRow) {
+                commentsRow.style.display = 'none';
+            }
+        }
+
+        function hideAllForms() {
+            document.querySelectorAll('[id^="complete-form-"]').forEach(form => {
+                form.style.display = 'none';
+            });
+            document.querySelectorAll('[id^="comments-history-"]').forEach(comments => {
+                comments.style.display = 'none';
+            });
+            document.querySelectorAll('.btn-success').forEach(btn => {
+                btn.style.display = 'inline-block';
+            });
+        }
+        
+        // Confirmation functions using SweetAlert2 for better UX
+        function confirmApprove(event) {
+            event.preventDefault();
+            
+            Swal.fire({
+                title: 'Approve Process',
+                text: 'Are you sure you want to approve this offboarding process? This will activate the process and send task assignments to departments.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Approve',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.form.submit();
+                }
+            });
+            
+            return false;
+        }
+        
+        function confirmUndo(event, taskName) {
+            event.preventDefault();
+            
+            Swal.fire({
+                title: 'Mark Task as Incomplete',
+                text: `Are you sure you want to mark "${taskName}" as incomplete?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Mark Incomplete',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.form.submit();
+                }
+            });
+            
+            return false;
+        }
+        
+        function confirmClose(event) {
+            event.preventDefault();
+            
+            Swal.fire({
+                title: 'Close Process',
+                text: 'Are you sure you want to close this process? All tasks must be completed first.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Close Process',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.form.submit();
+                }
+            });
+            
+            return false;
+        }
+
+        function deleteDocument(documentId) {
+            Swal.fire({
+                title: 'Delete Document',
+                text: 'Are you sure you want to delete this document?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Delete Document'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/Documents/Delete/${documentId}`;
+                    
+                    const processIdInput = document.createElement('input');
+                    processIdInput.type = 'hidden';
+                    processIdInput.name = 'processId';
+                    processIdInput.value = '@Model.Id';
+                    form.appendChild(processIdInput);
+                    
+                    const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (csrfToken) {
+                        form.appendChild(csrfToken.cloneNode());
+                    }
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        // Delete confirmation handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmationInput = document.getElementById('confirmationText');
+            const deleteBtn = document.getElementById('deleteConfirmBtn');
+            
+            if (confirmationInput && deleteBtn) {
+                confirmationInput.addEventListener('input', function() {
+                    if (this.value.toUpperCase() === 'DELETE') {
+                        deleteBtn.disabled = false;
+                        deleteBtn.classList.remove('disabled');
+                    } else {
+                        deleteBtn.disabled = true;
+                        deleteBtn.classList.add('disabled');
+                    }
+                });
+
+                // Reset when modal is hidden
+                document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+                    confirmationInput.value = '';
+                    deleteBtn.disabled = true;
+                    deleteBtn.classList.add('disabled');
+                });
+            }
+
+            // Load documents when page loads
+            loadDocuments();
+            
+            // Add smooth transitions
+            const completeForms = document.querySelectorAll('[id^="complete-form-"]');
+            completeForms.forEach(form => {
+                form.style.transition = 'all 0.3s ease-in-out';
+            });
+        });
+
+        function loadDocuments() {
+            fetch(`/api/documents/process/@Model.Id`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch documents');
+                    }
+                    return response.json();
+                })
+                .then(documents => {
+                    displayDocuments(documents);
+                })
+                .catch(error => {
+                    console.log('No documents API endpoint yet, showing placeholder');
+                    displayNoDocuments();
+                });
+        }
+
+        function displayDocuments(documents) {
+            const container = document.getElementById('documents-container');
+            
+            if (documents && documents.length > 0) {
+                let html = '<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>Document</th><th>Type</th><th>Size</th><th>Uploaded</th><th>Actions</th></tr></thead><tbody>';
+                
+                documents.forEach(doc => {
+                    const uploadedOn = new Date(doc.uploadedOn).toLocaleDateString('en-ZA');
+                    const fileSize = (doc.fileSize / 1024).toFixed(1) + ' KB';
+                    
+                    html += `
+                        <tr>
+                            <td><i class="fas fa-file-alt me-1"></i>${doc.fileName}</td>
+                            <td><span class="badge bg-info">${doc.fileType}</span></td>
+                            <td>${fileSize}</td>
+                            <td><small>${uploadedOn} by ${doc.uploadedBy}</small></td>
+                            <td>
+                                <a href="/Documents/Download/${doc.id}" class="btn btn-outline-primary btn-sm" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                ${@Model.IsActive.ToString().ToLower() ? `
+                                <button onclick="deleteDocument(${doc.id})" class="btn btn-outline-danger btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } else {
+                displayNoDocuments();
+            }
+        }
+
+        function displayNoDocuments() {
+            const container = document.getElementById('documents-container');
+            container.innerHTML = `
+                <div class="text-center py-3">
+                    <i class="fas fa-folder-open fa-2x text-muted mb-2"></i>
+                    <p class="text-muted mb-0">No documents uploaded yet.</p>
+                    ${@Model.IsActive.ToString().ToLower() ? '<small class="text-muted">Upload documents using the form above.</small>' : ''}
+                </div>
+            `;
+        }
+    </script>
+}
+
+<!-- Process Status Information -->
+@if (Model.Status == OffboardingChecklist.Models.ProcessStatus.PendingApproval && !userIsHR && ViewBag.IsInitiator)
+{
+    <div class="alert alert-warning" role="alert">
+        <h6 class="alert-heading">
+            <i class="fas fa-hourglass-half me-2"></i>Pending Approval
+        </h6>
+        <p class="mb-0">Your offboarding request has been submitted and is waiting for HR/Admin approval. You'll be notified when the request is approved or rejected.</p>
+    </div>
+}
