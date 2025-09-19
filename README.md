@@ -63,27 +63,27 @@ A comprehensive Employee Offboarding Checklist System designed to streamline the
 
 ```
 Controllers/
-?? HomeController.cs (Dashboard)
-?? OffboardingProcessesController.cs (Main CRUD)
-?? AnalyticsController.cs (Advanced reporting)
-?? Api/OffboardingApiController.cs (REST API)
+  - HomeController.cs (Dashboard)
+  - OffboardingProcessesController.cs (Main CRUD)
+  - AnalyticsController.cs (Advanced reporting)
+  - Api/OffboardingApiController.cs (REST API)
 Services/
-?? EmailService.cs (Email notifications)
-?? DocumentService.cs (File management)
+  - EmailService.cs (Email notifications)
+  - DocumentService.cs (File management)
 BackgroundServices/
-?? OffboardingReminderService.cs (Automated tasks)
+  - OffboardingReminderService.cs (Automated tasks)
 Models/
-?? OffboardingProcess.cs
-?? ChecklistItem.cs
-?? OffboardingDocument.cs
-?? ViewModels/ (Analytics, Dashboard)
+  - OffboardingProcess.cs
+  - ChecklistItem.cs
+  - OffboardingDocument.cs
+  - ViewModels/ (Analytics, Dashboard)
 Data/
-?? ApplicationDbContext.cs
-?? DbInitializer.cs
+  - ApplicationDbContext.cs
+  - DbInitializer.cs
 Views/
-?? Home/ (Dashboard)
-?? OffboardingProcesses/ (CRUD operations)
-?? Analytics/ (Advanced reporting)
+  - Home/ (Dashboard)
+  - OffboardingProcesses/ (CRUD operations)
+  - Analytics/ (Advanced reporting)
 ```
 
 ## Technology Stack
