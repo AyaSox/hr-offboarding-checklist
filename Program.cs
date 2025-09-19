@@ -157,21 +157,111 @@ app.MapGet("/health", async (ApplicationDbContext db) =>
     }
 });
 
-// Seed the database (create roles and admin user)
+// Enhanced database initialization and seeding
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
     try
     {
-        context.Database.Migrate();
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        logger.LogInformation("Starting database initialization...");
+
+        // Check if this is SQLite and if we should recreate the database
+        var isUsingSqlite = dbProvider.Equals("Sqlite", StringComparison.OrdinalIgnoreCase);
+        var forceRecreate = Environment.GetEnvironmentVariable("RECREATE_DATABASE")?.ToLower() == "true";
+
+        if (isUsingSqlite)
+        {
+            logger.LogInformation("Using SQLite database provider");
+            
+            // Check if database exists and has tables
+            var canConnect = await context.Database.CanConnectAsync();
+            bool hasOffboardingTable = false;
+            
+            if (canConnect)
+            {
+                try
+                {
+                    hasOffboardingTable = await context.OffboardingProcesses.AnyAsync();
+                }
+                catch (Exception)
+                {
+                    // Table doesn't exist or other schema issue
+                    hasOffboardingTable = false;
+                }
+            }
+
+            if (!canConnect || !hasOffboardingTable || forceRecreate)
+            {
+                logger.LogInformation("Database needs to be recreated for SQLite compatibility");
+                
+                if (forceRecreate)
+                {
+                    logger.LogInformation("Force recreating database...");
+                    await context.Database.EnsureDeletedAsync();
+                }
+
+                // Create database and apply all migrations
+                await context.Database.EnsureCreatedAsync();
+                logger.LogInformation("SQLite database created successfully");
+            }
+            else
+            {
+                logger.LogInformation("SQLite database already exists and is accessible");
+            }
+        }
+        else
+        {
+            // SQL Server - use normal migration process
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+            if (pendingMigrations.Any())
+            {
+                logger.LogInformation($"Applying {pendingMigrations.Count()} pending migrations...");
+                foreach (var migration in pendingMigrations)
+                {
+                    logger.LogInformation($"Pending migration: {migration}");
+                }
+                await context.Database.MigrateAsync();
+                logger.LogInformation("Database migrations completed successfully.");
+            }
+            else
+            {
+                logger.LogInformation("No pending migrations found.");
+            }
+        }
+
+        // Verify database schema exists
+        var canConnectFinal = await context.Database.CanConnectAsync();
+        if (!canConnectFinal)
+        {
+            throw new InvalidOperationException("Cannot connect to database after initialization.");
+        }
+
+        logger.LogInformation("Database connection verified. Starting data seeding...");
+
+        // Seed initial data
         await DbInitializer.SeedAsync(context, userManager, roleManager);
+        
+        logger.LogInformation("Database initialization completed successfully.");
     }
     catch (Exception ex)
     {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "An error occurred while initializing the database. Details: {ErrorMessage}", ex.Message);
+        
+        // In production, we might want to continue anyway if the database exists but seeding fails
+        if (app.Environment.IsProduction())
+        {
+            logger.LogWarning("Continuing application startup despite database initialization error in production.");
+        }
+        else
+        {
+            throw; // Re-throw in development for debugging
+        }
     }
 }
 

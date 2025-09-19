@@ -16,14 +16,18 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data
+# Create data directory for SQLite with proper permissions
+RUN mkdir -p /app/data && chmod 755 /app/data
 
 # Copy published output
 COPY --from=build /app/publish .
 
-# Environment for Render - bind to PORT
+# Set environment variables for production
+ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080}
+ENV DATABASE_PROVIDER=Sqlite
+ENV SQLITE_DB_PATH=/app/data/offboarding.db
+ENV RECREATE_DATABASE=true
 
 # Expose ports
 EXPOSE 8080
