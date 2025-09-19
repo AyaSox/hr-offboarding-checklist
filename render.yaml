@@ -4,8 +4,6 @@ services:
     env: docker
     plan: free
     autoDeploy: true
-    dockerfilePath: OffboardingChecklist/Dockerfile
-    buildContext: OffboardingChecklist
     envVars:
       - key: DATABASE_PROVIDER
         value: Sqlite
