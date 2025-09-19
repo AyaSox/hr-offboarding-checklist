@@ -6,17 +6,8 @@ WORKDIR /src
 COPY OffboardingChecklist.csproj ./
 RUN dotnet restore OffboardingChecklist.csproj
 
-# Copy source code - be explicit about what we're copying
-COPY Controllers/ ./Controllers/
-COPY Data/ ./Data/
-COPY Models/ ./Models/
-COPY Services/ ./Services/
-COPY BackgroundServices/ ./BackgroundServices/
-COPY Views/ ./Views/
-COPY Areas/ ./Areas/
-COPY wwwroot/ ./wwwroot/
-COPY Program.cs ./
-COPY appsettings*.json ./
+# Copy all source code
+COPY . .
 
 # Build and publish the app project
 RUN dotnet publish OffboardingChecklist.csproj -c Release -o /app/publish --no-restore

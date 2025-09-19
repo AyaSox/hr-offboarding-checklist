@@ -322,5 +322,11 @@ FodyWeavers.xsd
 appsettings.Development.json
 appsettings.Production.json
 
-# Data directory for SQLite
-data/
+# Runtime SQLite data directory (not the source code Data/ folder)
+/data/
+./data/
+**/data/*.db
+**/data/*.db-*
+
+# Explicitly include the source code Data folder (with Entity Framework code)
+!/Data/

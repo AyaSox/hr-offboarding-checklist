@@ -21,3 +21,13 @@
 **/secrets.dev.yaml
 **/values.dev.yaml
 **/.dockerignore
+
+# Explicitly include important directories (this overrides any exclusions above)
+!Data/
+!Controllers/
+!Models/
+!Services/
+!BackgroundServices/
+!Views/
+!Areas/
+!wwwroot/
