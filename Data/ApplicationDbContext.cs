@@ -23,6 +23,34 @@ namespace OffboardingChecklist.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure RowVersion for different database providers
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                // For SQLite, use a regular byte array that we manage manually
+                modelBuilder.Entity<OffboardingProcess>()
+                    .Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .HasDefaultValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 })
+                    .ValueGeneratedOnAddOrUpdate();
+
+                modelBuilder.Entity<ChecklistItem>()
+                    .Property(e => e.RowVersion)
+                    .IsRowVersion()
+                    .HasDefaultValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 1 })
+                    .ValueGeneratedOnAddOrUpdate();
+            }
+            else
+            {
+                // For SQL Server, use the standard rowversion
+                modelBuilder.Entity<OffboardingProcess>()
+                    .Property(e => e.RowVersion)
+                    .IsRowVersion();
+
+                modelBuilder.Entity<ChecklistItem>()
+                    .Property(e => e.RowVersion)
+                    .IsRowVersion();
+            }
+
             // Configure OffboardingProcess relationships
             modelBuilder.Entity<OffboardingProcess>()
                 .HasMany(p => p.ChecklistItems)
@@ -73,46 +101,72 @@ namespace OffboardingChecklist.Data
                 entity.Property(n => n.Type).HasConversion<int>();
                 entity.Property(n => n.Priority).HasConversion<int>();
                 
-                // Indexes
+                // Configure indexes for better query performance
                 entity.HasIndex(n => n.RecipientUserId);
                 entity.HasIndex(n => n.IsRead);
-                entity.HasIndex(n => n.CreatedOn);
                 entity.HasIndex(n => n.Type);
+                entity.HasIndex(n => n.CreatedOn);
             });
 
-            // Configure enum conversions
-            modelBuilder.Entity<OffboardingProcess>()
-                .Property(p => p.Status)
-                .HasConversion<int>();
-
-            // Configure indexes for better performance
-            modelBuilder.Entity<OffboardingProcess>()
-                .HasIndex(p => p.StartDate);
-
-            modelBuilder.Entity<OffboardingProcess>()
-                .HasIndex(p => p.IsClosed);
-
-            modelBuilder.Entity<OffboardingProcess>()
-                .HasIndex(p => p.Status);
-
-            modelBuilder.Entity<ChecklistItem>()
-                .HasIndex(c => c.IsCompleted);
-
-            modelBuilder.Entity<ChecklistItem>()
-                .HasIndex(c => c.DueDate);
-
-            modelBuilder.Entity<ChecklistItem>()
-                .HasIndex(c => c.Department);
-
-            modelBuilder.Entity<TaskComment>()
-                .HasIndex(tc => tc.CreatedOn);
-
+            // Configure Department unique constraint
             modelBuilder.Entity<Department>()
                 .HasIndex(d => d.Name)
                 .IsUnique();
 
+            // Configure indexes for better performance
+            modelBuilder.Entity<OffboardingProcess>()
+                .HasIndex(p => p.Status);
+            modelBuilder.Entity<OffboardingProcess>()
+                .HasIndex(p => p.StartDate);
+            modelBuilder.Entity<OffboardingProcess>()
+                .HasIndex(p => p.IsClosed);
+
+            modelBuilder.Entity<ChecklistItem>()
+                .HasIndex(c => c.IsCompleted);
+            modelBuilder.Entity<ChecklistItem>()
+                .HasIndex(c => c.Department);
+            modelBuilder.Entity<ChecklistItem>()
+                .HasIndex(c => c.DueDate);
+
+            modelBuilder.Entity<TaskComment>()
+                .HasIndex(tc => tc.CreatedOn);
+
             modelBuilder.Entity<TaskTemplate>()
-                .HasIndex(t => t.Department);
+                .HasIndex(tt => tt.Department);
+        }
+
+        public override int SaveChanges()
+        {
+            UpdateRowVersions();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            UpdateRowVersions();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void UpdateRowVersions()
+        {
+            // For SQLite, manually update RowVersion values
+            if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            {
+                var entities = ChangeTracker.Entries()
+                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                    .Where(e => e.Entity is OffboardingProcess || e.Entity is ChecklistItem);
+
+                foreach (var entity in entities)
+                {
+                    var rowVersionProperty = entity.Property("RowVersion");
+                    if (rowVersionProperty != null)
+                    {
+                        // Generate a new timestamp-like value for SQLite
+                        var timestamp = BitConverter.GetBytes(DateTime.UtcNow.Ticks);
+                        rowVersionProperty.CurrentValue = timestamp;
+                    }
+                }
+            }
         }
     }
 }

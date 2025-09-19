@@ -26,7 +26,7 @@ namespace OffboardingChecklist.Models
         public DateTime? DueDate { get; set; }
 
         [Timestamp]
-        public byte[] RowVersion { get; set; } = new byte[0];
+        public byte[] RowVersion { get; set; } = BitConverter.GetBytes(DateTime.UtcNow.Ticks);
 
         // Navigation properties
         public int OffboardingProcessId { get; set; }

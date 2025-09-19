@@ -68,7 +68,7 @@ namespace OffboardingChecklist.Models
         public DateTime? ClosedOn { get; set; }
 
         [Timestamp]
-        public byte[] RowVersion { get; set; } = new byte[0];
+        public byte[] RowVersion { get; set; } = BitConverter.GetBytes(DateTime.UtcNow.Ticks);
 
         // Navigation properties
         public ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
