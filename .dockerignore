@@ -2,7 +2,6 @@
 **/bin
 **/obj
 **/*.trx
-**/*.md
 **/*.ps1
 **/*.cmd
 **/*.sh
@@ -26,3 +25,19 @@
 README.md
 .git
 .gitignore
+
+# Ensure app source folders are included (defensive against broad patterns)
+!Controllers/**
+!Data/**
+!Models/**
+!Services/**
+!BackgroundServices/**
+!Areas/**
+!Views/**
+!wwwroot/**
+!Program.cs
+!appsettings.json
+!appsettings.Development.json
+!OffboardingChecklist.csproj
+!Dockerfile
+!render.yaml
