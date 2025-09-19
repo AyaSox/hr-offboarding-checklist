@@ -1,4 +1,6 @@
 **/.dockerignore
+````````
+**/.dockerignore
 **/bin
 **/obj
 **/*.trx
@@ -26,7 +28,7 @@ README.md
 .git
 .gitignore
 
-# Ensure app source folders are included (defensive against broad patterns)
+# Include all source files since we're now at root level
 !Controllers/**
 !Data/**
 !Models/**
