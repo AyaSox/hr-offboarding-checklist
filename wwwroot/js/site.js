@@ -56,7 +56,13 @@ function loadNotificationCount() {
     $.ajax({
         url: '/Notifications/GetUnreadCount',
         type: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: false,
         success: function(data) {
+            if (typeof data !== 'object' || data === null || typeof data.count === 'undefined') {
+                console.warn('Unexpected response for GetUnreadCount', data);
+                return;
+            }
             const badge = $('#notificationCount');
             const currentCount = data.count || 0;
             
@@ -77,7 +83,7 @@ function loadNotificationCount() {
             lastNotificationCount = currentCount;
         },
         error: function(xhr, status, error) {
-            console.warn('Could not load notification count:', error);
+            console.warn('Could not load notification count:', status, error);
         }
     });
 }
@@ -91,8 +97,14 @@ function checkForNewNotifications() {
     $.ajax({
         url: '/Notifications/GetLatest',
         type: 'GET',
+        headers: { 'Accept': 'application/json' },
         data: { since: lastNotificationCheck.toISOString() },
+        cache: false,
         success: function(data) {
+            if (!Array.isArray(data)) {
+                console.warn('Unexpected response for GetLatest', data);
+                return;
+            }
             if (data && data.length > 0) {
                 // Update last check time
                 lastNotificationCheck = new Date();
@@ -106,65 +118,8 @@ function checkForNewNotifications() {
             }
         },
         error: function(xhr, status, error) {
-            console.warn('Could not check for new notifications:', error);
+            console.warn('Could not check for new notifications:', status, error);
         }
-    });
-}
-
-function showNotificationToast(count) {
-    const toastHtml = `
-        <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-delay="5000">
-            <div class="toast-header bg-info text-white">
-                <i class="fas fa-bell me-2"></i>
-                <strong class="me-auto">New Notification${count > 1 ? 's' : ''}</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                You have ${count} new notification${count > 1 ? 's' : ''}. Click the bell icon to view.
-            </div>
-        </div>`;
-    
-    const toastContainer = $('.toast-container');
-    const toastElement = $(toastHtml);
-    toastContainer.append(toastElement);
-    
-    const toast = new bootstrap.Toast(toastElement[0]);
-    toast.show();
-    
-    // Remove toast element after it hides
-    toastElement.on('hidden.bs.toast', function() {
-        $(this).remove();
-    });
-}
-
-function showHighPriorityNotificationToast(notification) {
-    const priorityText = notification.priority === 4 ? 'Critical' : 'High Priority';
-    const bgClass = notification.priority === 4 ? 'bg-danger' : 'bg-warning';
-    
-    const toastHtml = `
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="8000">
-            <div class="toast-header ${bgClass} text-white">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong class="me-auto">${priorityText}</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-            </div>
-            <div class="toast-body">
-                <strong>${notification.title}</strong><br>
-                ${notification.message}
-                ${notification.actionUrl ? `<br><a href="${notification.actionUrl}" class="text-decoration-none">View Details</a>` : ''}
-            </div>
-        </div>`;
-    
-    const toastContainer = $('.toast-container');
-    const toastElement = $(toastHtml);
-    toastContainer.append(toastElement);
-    
-    const toast = new bootstrap.Toast(toastElement[0]);
-    toast.show();
-    
-    // Remove toast element after it hides
-    toastElement.on('hidden.bs.toast', function() {
-        $(this).remove();
     });
 }
 
@@ -197,12 +152,28 @@ function loadNotifications() {
     $.ajax({
         url: '/Notifications/GetLatest',
         type: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: false,
         success: function(data) {
+            if (!Array.isArray(data)) {
+                console.error('Failed to load notifications: non-JSON response received');
+                const errorHtml = `
+                    <div class="text-center p-3">
+                        <i class="fas fa-exclamation-circle text-danger mb-2"></i>
+                        <p class="mb-0 small">Could not load notifications</p>
+                        <p class="mb-0 small text-muted">Unexpected response</p>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadNotifications()">
+                            <i class="fas fa-sync me-1"></i>Retry
+                        </button>
+                    </div>`;
+                $('#notificationContent').html(errorHtml);
+                return;
+            }
             console.log('Notifications loaded:', data);
             displayNotifications(data);
         },
         error: function(xhr, status, error) {
-            console.error('Failed to load notifications:', error, xhr);
+            console.error('Failed to load notifications:', status, error, xhr);
             const errorHtml = `
                 <div class="text-center p-3">
                     <i class="fas fa-exclamation-circle text-danger mb-2"></i>
@@ -288,12 +259,14 @@ function markAsRead(id, event) {
         url: '/Notifications/MarkAsRead',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ id: id }),
         headers: {
+            'Accept': 'application/json',
             'RequestVerificationToken': $('input:hidden[name="__RequestVerificationToken"]').val()
         },
+        data: JSON.stringify({ id: id }),
+        cache: false,
         success: function(response) {
-            if(response.success) {
+            if(response && response.success) {
                 // Update the notification count
                 loadNotificationCount();
                 
@@ -304,7 +277,7 @@ function markAsRead(id, event) {
             }
         },
         error: function(xhr, status, error) {
-            console.error('Failed to mark notification as read:', error);
+            console.error('Failed to mark notification as read:', status, error);
             // Still navigate even if marking read fails
             if (event && event.currentTarget && event.currentTarget.href) {
                 window.location.href = event.currentTarget.href;
@@ -350,10 +323,11 @@ function loadTasksForBulkComplete(processIds) {
         url: '/OffboardingProcesses/GetTasksForProcesses',
         type: 'POST',
         contentType: 'application/json',
-        data: JSON.stringify({ processIds: processIds }),
         headers: {
+            'Accept': 'application/json',
             'RequestVerificationToken': $('input:hidden[name="__RequestVerificationToken"]').val()
         },
+        data: JSON.stringify({ processIds: processIds }),
         success: function(response) {
             if (response.success && response.tasks) {
                 displayTasksForBulkComplete(response.tasks);

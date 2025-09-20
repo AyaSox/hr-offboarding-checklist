@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 namespace OffboardingChecklist.Controllers
 {
     [Authorize]
+    [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
     public class NotificationsController : Controller
     {
         private readonly INotificationService _notificationService;
@@ -37,6 +38,7 @@ namespace OffboardingChecklist.Controllers
 
         // GET: API endpoint for notification count
         [HttpGet]
+        [Produces("application/json")]
         [Route("Notifications/GetUnreadCount")]
         public async Task<IActionResult> GetUnreadCount()
         {
@@ -58,6 +60,7 @@ namespace OffboardingChecklist.Controllers
 
         // GET: API endpoint for recent notifications
         [HttpGet]
+        [Produces("application/json")]
         [Route("Notifications/GetLatest")]
         public async Task<IActionResult> GetLatest(DateTime? since = null, int limit = 10)
         {
@@ -102,6 +105,8 @@ namespace OffboardingChecklist.Controllers
 
         // POST: Mark notification as read (accept JSON body)
         [HttpPost]
+        [Produces("application/json")]
+        [ValidateAntiForgeryToken]
         [Route("Notifications/MarkAsRead")]
         public async Task<IActionResult> MarkAsRead([FromBody] MarkRequest request)
         {
@@ -124,6 +129,8 @@ namespace OffboardingChecklist.Controllers
 
         // POST: Mark all notifications as read
         [HttpPost]
+        [Produces("application/json")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkAllAsRead()
         {
             try
