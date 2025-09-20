@@ -1,13 +1,35 @@
 # HR Employee Offboarding Checklist System
 
-![.NET](https://img.shields.io/badge/.NET-8.0-purple)
+[![.NET](https://img.shields.io/badge/.NET-8.0-purple)](https://dotnet.microsoft.com)
 ![C#](https://img.shields.io/badge/C%23-12.0-blue)
 ![Entity Framework](https://img.shields.io/badge/Entity%20Framework-Core-orange)
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-LocalDB-red)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
 ![API](https://img.shields.io/badge/API-Swagger-green)
 
+## Live Demo
+
+- Production (Render): https://hr-offboarding-checklist.onrender.com/
+
+[![Open Live Demo](https://img.shields.io/badge/Live%20Demo-Open%20App-brightgreen?logo=render)](https://hr-offboarding-checklist.onrender.com/)
+
 A comprehensive Employee Offboarding Checklist System designed to streamline the employee termination process across different departments in South African companies. This enterprise-grade solution showcases advanced .NET development skills and modern software architecture.
+
+## Screenshots
+
+> Note: Full-resolution screenshots are stored in `Documentation/screenshots/`. If images do not display on GitHub, ensure the PNG files exist at the paths below.
+
+- Dashboard
+  
+  ![Dashboard](Documentation/screenshots/dashboard.png)
+
+- Offboarding Processes Overview
+  
+  ![Offboarding Processes](Documentation/screenshots/processes.png)
+
+- Department Management
+  
+  ![Department Management](Documentation/screenshots/department-management.png)
 
 ## Core Features
 
@@ -169,8 +191,9 @@ dotnet run
 ```
 
 5) Access the application
-- Web App: https://localhost:5001
-- API Docs: https://localhost:5001/api-docs
+- Web App (local): https://localhost:5001
+- API Docs (local): https://localhost:5001/api-docs
+- Live Demo (Render): https://hr-offboarding-checklist.onrender.com/
 
 ## Configuration
 
@@ -305,7 +328,7 @@ services:
 
 Developer Portfolio Project
 - Repository: https://github.com/AyaSox/HROffboardingChecklist
-- Live Demo: Coming Soon - Render Deployment
+- Live Demo (Render): https://hr-offboarding-checklist.onrender.com/
 - Documentation: See /Documentation folder for detailed guides
 
 ---
