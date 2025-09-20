@@ -38,6 +38,7 @@ namespace OffboardingChecklist.Controllers
 
         // GET: API endpoint for notification count
         [HttpGet]
+        [AllowAnonymous]
         [Produces("application/json")]
         [Route("Notifications/GetUnreadCount")]
         public async Task<IActionResult> GetUnreadCount()
@@ -60,6 +61,7 @@ namespace OffboardingChecklist.Controllers
 
         // GET: API endpoint for recent notifications
         [HttpGet]
+        [AllowAnonymous]
         [Produces("application/json")]
         [Route("Notifications/GetLatest")]
         public async Task<IActionResult> GetLatest(DateTime? since = null, int limit = 10)
