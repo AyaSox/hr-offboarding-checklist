@@ -5,6 +5,18 @@ $(document).ready(function() {
         new bootstrap.Toast(this).show();
     });
     
+    // Initialize notification settings if not already set
+    if (typeof window.notificationSettings === 'undefined') {
+        window.notificationSettings = {
+            lastCount: 0,
+            lastCheck: new Date(),
+            userId: ''
+        };
+    }
+    
+    // Set up notification event handlers
+    setupNotificationHandlers();
+    
     // Load notification count on page load
     loadNotificationCount();
     
@@ -19,8 +31,16 @@ $(document).ready(function() {
 });
 
 // Global variables for notification tracking
-let lastNotificationCount = 0;
+let lastNotificationCount = window.notificationSettings ? window.notificationSettings.lastCount : 0;
 let lastNotificationCheck = new Date();
+
+function setupNotificationHandlers() {
+    // Ensure the dropdown event is properly bound
+    $(document).off('show.bs.dropdown', '#notificationsDropdown').on('show.bs.dropdown', '#notificationsDropdown', function () {
+        console.log('Notification dropdown opened, loading notifications...');
+        loadNotifications();
+    });
+}
 
 function initializeRealTimeFeatures() {
     // Check for new notifications immediately
@@ -28,6 +48,11 @@ function initializeRealTimeFeatures() {
 }
 
 function loadNotificationCount() {
+    // Skip if user is not logged in
+    if (!window.notificationSettings || !window.notificationSettings.userId) {
+        return;
+    }
+    
     $.ajax({
         url: '/Notifications/GetUnreadCount',
         type: 'GET',
@@ -51,13 +76,18 @@ function loadNotificationCount() {
             
             lastNotificationCount = currentCount;
         },
-        error: function() {
-            console.warn('Could not load notification count');
+        error: function(xhr, status, error) {
+            console.warn('Could not load notification count:', error);
         }
     });
 }
 
 function checkForNewNotifications() {
+    // Skip if user is not logged in
+    if (!window.notificationSettings || !window.notificationSettings.userId) {
+        return;
+    }
+    
     $.ajax({
         url: '/Notifications/GetLatest',
         type: 'GET',
@@ -75,8 +105,8 @@ function checkForNewNotifications() {
                 });
             }
         },
-        error: function() {
-            console.warn('Could not check for new notifications');
+        error: function(xhr, status, error) {
+            console.warn('Could not check for new notifications:', error);
         }
     });
 }
@@ -154,18 +184,30 @@ function loadNotifications() {
     
     $('#notificationContent').html(loadingHtml);
     
+    // Skip if user is not logged in
+    if (!window.notificationSettings || !window.notificationSettings.userId) {
+        $('#notificationContent').html(`
+            <div class="text-center p-3">
+                <i class="fas fa-user-slash text-muted mb-2"></i>
+                <p class="mb-0 small">Please log in to view notifications</p>
+            </div>`);
+        return;
+    }
+    
     $.ajax({
         url: '/Notifications/GetLatest',
         type: 'GET',
         success: function(data) {
+            console.log('Notifications loaded:', data);
             displayNotifications(data);
         },
         error: function(xhr, status, error) {
-            console.error('Failed to load notifications:', error);
+            console.error('Failed to load notifications:', error, xhr);
             const errorHtml = `
                 <div class="text-center p-3">
                     <i class="fas fa-exclamation-circle text-danger mb-2"></i>
                     <p class="mb-0 small">Could not load notifications</p>
+                    <p class="mb-0 small text-muted">${error || 'Network error'}</p>
                     <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadNotifications()">
                         <i class="fas fa-sync me-1"></i>Retry
                     </button>

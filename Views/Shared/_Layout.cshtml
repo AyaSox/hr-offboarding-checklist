@@ -243,134 +243,14 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Load notifications -->
+    <!-- Initialize notification settings -->
     <script>
-        // Global notification variables
+        // Global notification settings - set before site.js loads
         window.notificationSettings = {
             lastCount: @unreadCount,
             lastCheck: new Date(),
             userId: '@(SignInManager.IsSignedIn(User) ? UserManager.GetUserId(User) : "")'
         };
-        
-        $(document).ready(function() {
-            // Load notification count on page load
-            loadNotificationCount();
-            
-            // Refresh notification count every 5 minutes
-            setInterval(loadNotificationCount, 300000);
-        });
-        
-        function loadNotificationCount() {
-            $.ajax({
-                url: '/Notifications/GetUnreadCount',
-                type: 'GET',
-                success: function(data) {
-                    const badge = $('#notificationCount');
-                    if(data.count > 0) {
-                        badge.text(data.count).show();
-                    } else {
-                        badge.hide();
-                    }
-                },
-                error: function() {
-                    console.warn('Could not load notification count');
-                }
-            });
-        }
-        
-        // Load notifications
-        $('#notificationsDropdown').on('show.bs.dropdown', function () {
-            loadNotifications();
-        });
-        
-        function loadNotifications() {
-            $.ajax({
-                url: '/Notifications/GetLatest',
-                type: 'GET',
-                success: function(data) {
-                    if(data && data.length > 0) {
-                        var html = '';
-                        $.each(data, function(i, notification) {
-                            var iconClass = getNotificationIcon(notification.type);
-                            var badgeClass = notification.priority === 0 ? 'bg-info' : 
-                                            notification.priority === 1 ? 'bg-warning' : 'bg-danger';
-                            var readClass = notification.isRead ? 'text-muted' : 'fw-bold';
-                            
-                            html += '<a class="dropdown-item notification-item ' + readClass + '" href="' + 
-                                (notification.actionUrl || '/Notifications') + '" onclick="markAsRead(' + notification.id + ', event)" aria-label="Open notification">' +
-                                '<div class="d-flex align-items-center">' +
-                                '<div class="flex-shrink-0 me-2">' +
-                                '<i class="' + iconClass + '" aria-hidden="true"></i>' +
-                                '</div>' +
-                                '<div class="flex-grow-1">' +
-                                '<div class="notification-title">' + notification.title + '</div>' +
-                                '<div class="notification-message small">' + notification.message + '</div>' +
-                                '<div class="notification-time small text-muted">' + notification.timeAgo + '</div>' +
-                                '</div>' +
-                                '</div>' +
-                                '</a>';
-                                
-                            if(i < data.length - 1) {
-                                html += '<div class="dropdown-divider"></div>';
-                            }
-                        });
-                        $('#notificationContent').html(html);
-                    } else {
-                        $('#notificationContent').html('<div class="text-center p-3"><i class="fas fa-check-circle text-success mb-2" aria-hidden="true"></i><p class="mb-0 small">No new notifications</p></div>');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Failed to load notifications:', error);
-                    $('#notificationContent').html('<div class="text-center p-3"><i class="fas fa-exclamation-circle text-danger mb-2" aria-hidden="true"></i><p class="mb-0 small">Could not load notifications</p></div>');
-                }
-            });
-        }
-        
-        function getNotificationIcon(type) {
-            switch(type) {
-                case 0: return 'fas fa-play-circle text-success';
-                case 1: return 'fas fa-check-circle text-primary';
-                case 2: return 'fas fa-exclamation-triangle text-danger';
-                case 3: return 'fas fa-check text-success';
-                case 4: return 'fas fa-bell text-warning';
-                case 5: return 'fas fa-clock text-info';
-                default: return 'fas fa-info-circle text-secondary';
-            }
-        }
-        
-        function markAsRead(id, event) {
-            // Prevent the default action
-            if (event) {
-                event.preventDefault();
-            }
-            
-            // Send AJAX request to mark as read
-            $.ajax({
-                url: '/Notifications/MarkAsRead',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ id: id }),
-                headers: {
-                    'RequestVerificationToken': $('input:hidden[name="__RequestVerificationToken"]').val()
-                },
-                success: function(response) {
-                    if(response.success) {
-                        // Redirect to the action URL if provided
-                        if (event && event.currentTarget && event.currentTarget.href) {
-                            window.location.href = event.currentTarget.href;
-                        }
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('Failed to mark notification as read:', error);
-                }
-            });
-        }
-        
-        // Initialize toasts
-        $('.toast').each(function() {
-            new bootstrap.Toast(this).show();
-        });
     </script>
     
     @await RenderSectionAsync("Scripts", required: false)
