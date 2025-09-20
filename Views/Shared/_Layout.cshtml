@@ -238,17 +238,20 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
-            integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVGsGrX5xXxAvs/HgeFs"
+    <!-- jQuery with integrity check and fallback -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqD2B9ZPpT3Q69z7Uq7xYk8ePhBHF9RSbuuSSMzdEar3NofM8JrjVNew+o7f0G9"
             crossorigin="anonymous"
             asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
             asp-fallback-test="window.jQuery">
     </script>
+    
+    <!-- Bootstrap with integrity check and fallback -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"
             asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
-            asp-fallback-test="window.bootstrap && window.bootstrap.Toast">
+            asp-fallback-test="window.bootstrap">
     </script>
 
     <!-- Initialize notification settings BEFORE site.js loads -->
