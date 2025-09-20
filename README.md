@@ -6,6 +6,7 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-LocalDB-red)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
 ![API](https://img.shields.io/badge/API-Swagger-green)
+[![CI/CD](https://github.com/AyaSox/hr-offboarding-checklist/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/AyaSox/hr-offboarding-checklist/actions/workflows/ci-cd.yml)
 
 ## Live Demo
 
@@ -121,7 +122,7 @@ Views/
 ### Backend
 - .NET 8.0 (LTS)
 - C# 12.0
-- ASP.NET Core MVC
+- ASP.NET Core MVC / Razor Pages
 - Entity Framework Core (code-first migrations)
 - SQL Server LocalDB (development)
 - ASP.NET Core Identity
@@ -135,7 +136,7 @@ Views/
 ### DevOps & APIs
 - Swagger/OpenAPI
 - Docker
-- GitHub Actions (CI/CD)
+- GitHub Actions (CI/CD) – automated build/test and Docker image
 - Background Services
 
 ### Advanced Features
@@ -202,6 +203,15 @@ dotnet run
 - Web App (local): https://localhost:5001
 - API Docs (local): https://localhost:5001/api-docs
 - Live Demo (Render): https://hr-offboarding-checklist.onrender.com/
+
+## CI/CD (GitHub Actions)
+
+- Workflow: `.github/workflows/ci-cd.yml`
+- What it does (on push to `main`):
+  - Restore, build, and test the .NET solution
+  - Build a Docker image for deployment
+  - Publishes build artifacts (if configured)
+- Status: see badge at the top of this README
 
 ## Configuration
 
@@ -304,33 +314,18 @@ services:
 
 ## Why This Project Stands Out
 
-### For Junior Developer Roles
-1. Real-world Problem: Solves actual business challenges
-2. Enterprise Patterns: Background services, caching, APIs
-3. Modern Architecture: Clean code, SOLID principles
-4. Full-stack Skills: Backend APIs, frontend interactions
-5. DevOps Ready: Docker, CI/CD, monitoring
+### For Junior Developer Roles (simple)
+- Real project: CRUD, auth, files, emails
+- Clean .NET 8 + Razor Pages + EF Core
+- Documented APIs with Swagger
+- Background jobs and caching
+- Docker + GitHub Actions CI/CD
 
-### South African Market Relevance
-- Compliance Focus: Audit trails for labor law requirements
-- Multi-department: Reflects SA corporate structures
-- Email Integration: Professional communication workflows
-- Reporting: Management oversight capabilities
-
-## CI/CD Pipeline
-
-- Build: Automated compilation and testing
-- Test: Unit and integration test execution
-- Docker: Container image creation
-- Deploy: Automated deployment to staging/production
-
-## Future Enhancements
-
-- Real-time Updates: SignalR for live notifications
-- Advanced Reporting: Power BI integration
-- Mobile App: Xamarin or .NET MAUI companion
-- Multi-tenant: Support for multiple companies
-- Integration: SAP/SuccessFactors API connections
+### South African Market Relevance (simple)
+- Labour-law friendly audit trail
+- Department workflows: HR, IT, Finance, Payroll
+- Email-based updates and reminders
+- Dashboards for quick management views
 
 ## Contact
 
