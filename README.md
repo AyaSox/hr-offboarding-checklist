@@ -6,7 +6,6 @@
 ![SQL Server](https://img.shields.io/badge/SQL%20Server-LocalDB-red)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple)
 ![API](https://img.shields.io/badge/API-Swagger-green)
-[![CI/CD](https://github.com/AyaSox/hr-offboarding-checklist/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/AyaSox/hr-offboarding-checklist/actions/workflows/ci-cd.yml)
 
 ## Live Demo
 
@@ -136,7 +135,6 @@ Views/
 ### DevOps & APIs
 - Swagger/OpenAPI
 - Docker
-- GitHub Actions (CI/CD) – automated build/test and Docker image
 - Background Services
 
 ### Advanced Features
@@ -203,15 +201,6 @@ dotnet run
 - Web App (local): https://localhost:5001
 - API Docs (local): https://localhost:5001/api-docs
 - Live Demo (Render): https://hr-offboarding-checklist.onrender.com/
-
-## CI/CD (GitHub Actions)
-
-- Workflow: `.github/workflows/ci-cd.yml`
-- What it does (on push to `main`):
-  - Restore, build, and test the .NET solution
-  - Build a Docker image for deployment
-  - Publishes build artifacts (if configured)
-- Status: see badge at the top of this README
 
 ## Configuration
 
@@ -311,21 +300,6 @@ services:
 - Authentication required for all endpoints
 - CSRF protection
 - SQL injection prevention
-
-## Why This Project Stands Out
-
-### For Junior Developer Roles (simple)
-- Real project: CRUD, auth, files, emails
-- Clean .NET 8 + Razor Pages + EF Core
-- Documented APIs with Swagger
-- Background jobs and caching
-- Docker + GitHub Actions CI/CD
-
-### South African Market Relevance (simple)
-- Labour-law friendly audit trail
-- Department workflows: HR, IT, Finance, Payroll
-- Email-based updates and reminders
-- Dashboards for quick management views
 
 ## Contact
 
