@@ -17,19 +17,27 @@ A comprehensive Employee Offboarding Checklist System designed to streamline the
 
 ## Screenshots
 
-> Note: Full-resolution screenshots are stored in `Documentation/screenshots/`. If images do not display on GitHub, ensure the PNG files exist at the paths below.
+> Note: Screenshots are stored in `Documentation/Screenshots/`.
 
 - Dashboard
   
-  ![Dashboard](Documentation/screenshots/dashboard.png)
+  ![Dashboard](Documentation/Screenshots/Employee%20offboarding%20Dashboard.PNG)
 
 - Offboarding Processes Overview
   
-  ![Offboarding Processes](Documentation/screenshots/processes.png)
+  ![Offboarding Processes](Documentation/Screenshots/Processes.PNG)
 
 - Department Management
   
-  ![Department Management](Documentation/screenshots/department-management.png)
+  ![Department Management](Documentation/Screenshots/Department.PNG)
+
+- Analytics Dashboard
+  
+  ![Analytics Dashboard](Documentation/Screenshots/AnalyticsDashboard.PNG)
+
+- Task Templates
+  
+  ![Task Templates](Documentation/Screenshots/TaskTemplates.PNG)
 
 ## Core Features
 
