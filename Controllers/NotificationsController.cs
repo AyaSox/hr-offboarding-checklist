@@ -59,7 +59,7 @@ namespace OffboardingChecklist.Controllers
         // GET: API endpoint for recent notifications
         [HttpGet]
         [Route("Notifications/GetLatest")]
-        public async Task<IActionResult> GetLatest()
+        public async Task<IActionResult> GetLatest(DateTime? since = null, int limit = 10)
         {
             try
             {
@@ -67,7 +67,14 @@ namespace OffboardingChecklist.Controllers
                 if (string.IsNullOrEmpty(userId))
                     return Json(new List<object>());
 
-                var notifications = await _notificationService.GetUserNotificationsAsync(userId, false, 10);
+                var notifications = await _notificationService.GetUserNotificationsAsync(userId, false, limit);
+                
+                // Filter by 'since' if provided
+                if (since.HasValue)
+                {
+                    notifications = notifications.Where(n => n.CreatedOn > since.Value).ToList();
+                }
+
                 var result = notifications.Select(n => new
                 {
                     id = n.Id,

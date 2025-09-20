@@ -1,0 +1,113 @@
+@model OffboardingChecklist.Models.Department
+
+@{
+    ViewData["Title"] = "Delete Department";
+}
+
+<div class="page-header mb-4">
+    <h1 class="text-danger">
+        <i class="fas fa-trash"></i>
+        Delete Department
+    </h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirm Deletion
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Warning!
+                    </h6>
+                    <p class="mb-0">
+                        You are about to permanently delete this department. This action cannot be undone.
+                        Consider <strong>deactivating</strong> the department instead if you want to preserve data.
+                    </p>
+                </div>
+
+                <h5 class="mb-3">Department to be deleted:</h5>
+                
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3">Name:</dt>
+                            <dd class="col-sm-9">@Model.Name</dd>
+
+                            <dt class="col-sm-3">Email:</dt>
+                            <dd class="col-sm-9">@Model.EmailAddress</dd>
+
+                            @if (!string.IsNullOrEmpty(Model.ManagerName))
+                            {
+                                <dt class="col-sm-3">Manager:</dt>
+                                <dd class="col-sm-9">@Model.ManagerName</dd>
+                            }
+
+                            <dt class="col-sm-3">Status:</dt>
+                            <dd class="col-sm-9">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-3">Created:</dt>
+                            <dd class="col-sm-9">@Model.CreatedOn.ToString("MMM dd, yyyy") by @Model.CreatedBy</dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h6 class="text-muted mb-2">
+                        <i class="fas fa-info-circle me-1"></i>What happens when you delete this department?
+                    </h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-1">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Department record will be permanently removed
+                        </li>
+                        <li class="mb-1">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Existing checklist items referencing this department will remain unchanged
+                        </li>
+                        <li class="mb-1">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            This action cannot be undone
+                        </li>
+                        <li class="mb-1">
+                            <i class="fas fa-info-circle text-info me-2"></i>
+                            Consider deactivating instead to preserve historical data
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <div>
+                        <a asp-action="Index" class="btn btn-secondary me-2">
+                            <i class="fas fa-arrow-left me-1"></i>Back to List
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">
+                            <i class="fas fa-edit me-1"></i>Edit Instead
+                        </a>
+                    </div>
+                    <form asp-action="Delete" method="post" style="display: inline;">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger" 
+                                onclick="return confirm('Are you absolutely sure you want to delete this department? This action cannot be undone.')">
+                            <i class="fas fa-trash me-1"></i>Delete Department
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

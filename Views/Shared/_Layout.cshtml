@@ -245,6 +245,13 @@
     
     <!-- Load notifications -->
     <script>
+        // Global notification variables
+        window.notificationSettings = {
+            lastCount: @unreadCount,
+            lastCheck: new Date(),
+            userId: '@(SignInManager.IsSignedIn(User) ? UserManager.GetUserId(User) : "")'
+        };
+        
         $(document).ready(function() {
             // Load notification count on page load
             loadNotificationCount();
