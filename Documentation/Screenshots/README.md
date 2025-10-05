@@ -1,0 +1,5 @@
+- Replace these placeholder images with your real screenshots to display in the README.
+- Save with the exact filenames used in README.md:
+  - dashboard.png
+  - processes.png
+  - department-management.png

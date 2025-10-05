@@ -1,224 +1,360 @@
-﻿@model OffboardingChecklist.Models.DashboardViewModel
+﻿@using Microsoft.AspNetCore.Identity
+@model OffboardingChecklist.Models.DashboardViewModel
+@inject SignInManager<IdentityUser> SignInManager
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = SignInManager.IsSignedIn(User) ? "Dashboard" : "Welcome";
 }
 
-<div class="page-header mb-3">
-    <h1>
-        <i class="fas fa-tachometer-alt text-primary"></i>
-        Employee Offboarding Dashboard
-    </h1>
-</div>
+@if (!SignInManager.IsSignedIn(User))
+{
+    <!-- Landing Page for Non-Authenticated Users -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="container">
+                <div class="hero-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h1 class="fade-in">Employee Offboarding Made Simple</h1>
+                <p class="lead fade-in">Streamline your offboarding process with automated workflows, task management, and real-time tracking.</p>
+                <div class="mt-4 fade-in">
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-light btn-lg me-2">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="subtle-strip mb-4">
-    <div class="row g-3">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="h4 mb-0">@Model.TotalProcesses</div>
-                            <small>Total Processes</small>
-                        </div>
-                        <i class="fas fa-clipboard-list fa-lg opacity-75"></i>
+    <!-- Features Section -->
+    <div class="container my-5">
+        <div class="row text-center mb-5">
+            <div class="col-12">
+                <h2 class="mb-3">Why Choose Our System?</h2>
+                <p class="text-muted">Comprehensive features designed for efficient employee offboarding</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-tasks"></i>
                     </div>
+                    <h3 class="feature-title">Automated Workflows</h3>
+                    <p class="feature-description">Create and assign tasks automatically based on department templates. Save time and reduce errors.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Real-Time Tracking</h3>
+                    <p class="feature-description">Monitor progress with live dashboards and comprehensive analytics. Stay informed at every step.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="feature-title">Smart Notifications</h3>
+                    <p class="feature-description">Automated email and in-app notifications keep everyone updated on task assignments and completions.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-users-cog"></i>
+                    </div>
+                    <h3 class="feature-title">Role-Based Access</h3>
+                    <p class="feature-description">Secure permissions system ensures the right people have access to the right information.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Document Management</h3>
+                    <p class="feature-description">Upload, store, and manage all offboarding documents in one secure location.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Audit Trail</h3>
+                    <p class="feature-description">Complete audit history for compliance and record-keeping purposes.</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="h4 mb-0">@Model.CompletedProcesses</div>
-                            <small>Completed</small>
-                        </div>
-                        <i class="fas fa-check-circle fa-lg opacity-75"></i>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Compliant</div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white h-100">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="h4 mb-0">@Model.PendingProcesses</div>
-                            <small>Pending</small>
-                        </div>
-                        <i class="fas fa-clock fa-lg opacity-75"></i>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Access</div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="h4 mb-0">@Model.AverageProgress.ToString("F0")%</div>
-                            <small>Avg Progress</small>
-                        </div>
-                        <i class="fas fa-chart-line fa-lg opacity-75"></i>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <div class="stat-number">Secure</div>
+                        <div class="stat-label">Data Protection</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <div class="stat-number">Fast</div>
+                        <div class="stat-label">Setup</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Recent Processes and Department Stats -->
-<div class="row">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header py-2">
-                <h5 class="mb-0 section-title"><i class="fas fa-history me-2"></i>Recent Offboarding Processes</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.RecentProcesses.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Employee</th>
-                                    <th>Job Title</th>
-                                    <th>Started</th>
-                                    <th>Progress</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var process in Model.RecentProcesses)
-                                {
-                                    <tr>
-                                        <td>@process.EmployeeName</td>
-                                        <td>@process.JobTitle</td>
-                                        <td>@process.StartDate.ToString("MMM dd, yyyy")</td>
-                                        <td>
-                                            <div class="progress">
-                                                <div class="progress-bar" role="progressbar" style="width: @process.ProgressPercent%">
-                                                    @process.ProgressPercent.ToString("F0")%
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if (process.IsClosed)
-                                            {
-                                                <span class="badge bg-success">Closed</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-warning">Active</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <a asp-controller="OffboardingProcesses" asp-action="Details" asp-route-id="@process.Id" class="btn btn-sm btn-outline-primary" title="View">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4">
-                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                        <h5>No Offboarding Processes Yet</h5>
-                        <p class="text-muted">Get started by creating your first offboarding process.</p>
-                        <a asp-controller="OffboardingProcesses" asp-action="Create" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Create First Process
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
+}
+else
+{
+    <!-- Dashboard for Authenticated Users -->
+    <div class="page-header mb-3">
+        <h1>
+            <i class="fas fa-tachometer-alt text-primary"></i>
+            Employee Offboarding Dashboard
+        </h1>
     </div>
-    <div class="col-md-4">
-        <!-- Department Stats -->
-        <div class="card">
-            <div class="card-header py-2">
-                <h5 class="mb-0 section-title"><i class="fas fa-building me-2"></i>Tasks by Department</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.TasksByDepartment.Any())
-                {
-                    @foreach (var dept in Model.TasksByDepartment)
-                    {
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+    <div class="subtle-strip mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <span class="fw-bold">@dept.Key</span>
-                                <br>
-                                <small class="text-muted">Department</small>
+                                <div class="h4 mb-0">@Model.TotalProcesses</div>
+                                <small>Total Processes</small>
                             </div>
-                            <div class="text-end">
-                                <span class="badge bg-secondary fs-6">@dept.Value</span>
-                                <br>
-                                <small class="text-muted">tasks</small>
+                            <i class="fas fa-clipboard-list fa-lg opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="h4 mb-0">@Model.CompletedProcesses</div>
+                                <small>Completed</small>
                             </div>
+                            <i class="fas fa-check-circle fa-lg opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white h-100">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="h4 mb-0">@Model.PendingProcesses</div>
+                                <small>Pending</small>
+                            </div>
+                            <i class="fas fa-clock fa-lg opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white h-100">
+                    <div class="card-body py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="h4 mb-0">@Model.AverageProgress.ToString("F0")%</div>
+                                <small>Avg Progress</small>
+                            </div>
+                            <i class="fas fa-chart-line fa-lg opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Processes and Department Stats -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header py-2">
+                    <h5 class="mb-0 section-title"><i class="fas fa-history me-2"></i>Recent Offboarding Processes</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentProcesses.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Job Title</th>
+                                        <th>Started</th>
+                                        <th>Progress</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var process in Model.RecentProcesses)
+                                    {
+                                        <tr>
+                                            <td>@process.EmployeeName</td>
+                                            <td>@process.JobTitle</td>
+                                            <td>@process.StartDate.ToString("MMM dd, yyyy")</td>
+                                            <td>
+                                                <div class="progress">
+                                                    <div class="progress-bar" role="progressbar" style="width: @process.ProgressPercent%">
+                                                        @process.ProgressPercent.ToString("F0")%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (process.IsClosed)
+                                                {
+                                                    <span class="badge bg-success">Closed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">Active</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-controller="OffboardingProcesses" asp-action="Details" asp-route-id="@process.Id" class="btn btn-sm btn-outline-primary" title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="text-center py-3">
-                        <i class="fas fa-chart-bar fa-2x text-muted mb-2"></i>
-                        <p class="text-muted mb-0">No department data available</p>
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <h5>No Offboarding Processes Yet</h5>
+                            <p class="text-muted">Get started by creating your first offboarding process.</p>
+                            <a asp-controller="OffboardingProcesses" asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create First Process
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Department Stats -->
+            <div class="card">
+                <div class="card-header py-2">
+                    <h5 class="mb-0 section-title"><i class="fas fa-building me-2"></i>Tasks by Department</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.TasksByDepartment.Any())
+                    {
+                        @foreach (var dept in Model.TasksByDepartment)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="fw-bold">@dept.Key</span>
+                                    <br>
+                                    <small class="text-muted">Department</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-secondary fs-6">@dept.Value</span>
+                                    <br>
+                                    <small class="text-muted">tasks</small>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-3">
+                            <i class="fas fa-chart-bar fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No department data available</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+                <div class="card-header bg-primary text-white py-2">
+                    <h5 class="mb-0"><i class="fas fa-rocket me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-controller="OffboardingProcesses" asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> New Offboarding Process
+                        </a>
+                        <a asp-controller="OffboardingProcesses" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-list me-1"></i> View All Processes
+                        </a>
+                        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Analytics" asp-action="Index" class="btn btn-outline-info">
+                                <i class="fas fa-chart-bar me-1"></i> Analytics Dashboard
+                            </a>
+                        }
+                        <a href="/api-docs" target="_blank" class="btn btn-outline-dark">
+                            <i class="fas fa-code me-1"></i> API Documentation
+                        </a>
                     </div>
-                }
+                </div>
             </div>
-        </div>
 
-        <!-- Quick Actions -->
-        <div class="card mt-3">
-            <div class="card-header bg-primary text-white py-2">
-                <h5 class="mb-0"><i class="fas fa-rocket me-2"></i>Quick Actions</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <a asp-controller="OffboardingProcesses" asp-action="Create" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> New Offboarding Process
-                    </a>
-                    <a asp-controller="OffboardingProcesses" asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="fas fa-list me-1"></i> View All Processes
-                    </a>
-                    <a asp-controller="Analytics" asp-action="Index" class="btn btn-outline-info">
-                        <i class="fas fa-chart-bar me-1"></i> Analytics Dashboard
-                    </a>
-                    <a href="/api-docs" target="_blank" class="btn btn-outline-dark">
-                        <i class="fas fa-code me-1"></i> API Documentation
-                    </a>
+            <!-- System Status -->
+            <div class="card mt-3">
+                <div class="card-header py-2">
+                    <h5 class="mb-0 section-title"><i class="fas fa-heartbeat me-2"></i>System Status</h5>
                 </div>
-            </div>
-        </div>
-
-        <!-- System Status -->
-        <div class="card mt-3">
-            <div class="card-header py-2">
-                <h5 class="mb-0 section-title"><i class="fas fa-heartbeat me-2"></i>System Status</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Background Service</span>
-                    <span class="badge bg-success">Running</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>Email Notifications</span>
-                    <span class="badge bg-success">Active</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span>API Endpoint</span>
-                    <span class="badge bg-success">Available</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>File Upload</span>
-                    <span class="badge bg-success">Ready</span>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Background Service</span>
+                        <span class="badge bg-success">Running</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>Email Notifications</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>API Endpoint</span>
+                        <span class="badge bg-success">Available</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>File Upload</span>
+                        <span class="badge bg-success">Ready</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+}

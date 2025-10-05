@@ -56,53 +56,59 @@
                     <i class="fas fa-building me-2" aria-hidden="true"></i>
                     Employee Offboarding System
                 </a>
+                
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="btn btn-link me-2" title="Toggle dark mode" aria-label="Toggle theme">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+                
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link @ActiveLink("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index" aria-label="Dashboard">
-                                <i class="fas fa-tachometer-alt me-1" aria-hidden="true"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @ActiveLink("OffboardingProcesses", "Index")" asp-area="" asp-controller="OffboardingProcesses" asp-action="Index" aria-label="Processes">
-                                <i class="fas fa-clipboard-list me-1" aria-hidden="true"></i> Processes
-                            </a>
-                        </li>
-                        @if (User.IsInRole("HR") || User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item dropdown @ActiveLink("Analytics", "Index")">
-                                <a class="nav-link dropdown-toggle" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Management menu">
-                                    <i class="fas fa-cogs me-1" aria-hidden="true"></i> Management
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link @ActiveLink("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index" aria-label="Dashboard">
+                                    <i class="fas fa-tachometer-alt me-1" aria-hidden="true"></i> Dashboard
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="managementDropdown">
-                                    <li><a class="dropdown-item" asp-controller="Departments" asp-action="Index">
-                                        <i class="fas fa-building me-1" aria-hidden="true"></i> Departments
-                                    </a></li>
-                                    <li><a class="dropdown-item" asp-controller="TaskTemplates" asp-action="Index">
-                                        <i class="fas fa-tasks me-1" aria-hidden="true"></i> Task Templates
-                                    </a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item @ActiveLink("Analytics", "Index")" asp-area="" asp-controller="Analytics" asp-action="Index">
-                                        <i class="fas fa-chart-bar me-1" aria-hidden="true"></i> Analytics
-                                    </a></li>
-                                </ul>
                             </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link @ActiveLink("Home", "Help")" asp-area="" asp-controller="Home" asp-action="Help" aria-label="Help">
-                                <i class="fas fa-question-circle me-1" aria-hidden="true"></i> Help
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <!-- User menu and notifications -->
-                    <ul class="navbar-nav">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
+                            <li class="nav-item">
+                                <a class="nav-link @ActiveLink("OffboardingProcesses", "Index")" asp-area="" asp-controller="OffboardingProcesses" asp-action="Index" aria-label="Processes">
+                                    <i class="fas fa-clipboard-list me-1" aria-hidden="true"></i> Processes
+                                </a>
+                            </li>
+                            @if (User.IsInRole("HR") || User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown @ActiveLink("Analytics", "Index")">
+                                    <a class="nav-link dropdown-toggle" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Management menu">
+                                        <i class="fas fa-cogs me-1" aria-hidden="true"></i> Management
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="managementDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Departments" asp-action="Index">
+                                            <i class="fas fa-building me-1" aria-hidden="true"></i> Departments
+                                        </a></li>
+                                        <li><a class="dropdown-item" asp-controller="TaskTemplates" asp-action="Index">
+                                            <i class="fas fa-tasks me-1" aria-hidden="true"></i> Task Templates
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item @ActiveLink("Analytics", "Index")" asp-area="" asp-controller="Analytics" asp-action="Index">
+                                            <i class="fas fa-chart-bar me-1" aria-hidden="true"></i> Analytics
+                                        </a></li>
+                                    </ul>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link @ActiveLink("Home", "Help")" asp-area="" asp-controller="Home" asp-action="Help" aria-label="Help">
+                                    <i class="fas fa-question-circle me-1" aria-hidden="true"></i> Help
+                                </a>
+                            </li>
+                        </ul>
+                        
+                        <!-- User menu and notifications -->
+                        <ul class="navbar-nav">
                             <!-- Notifications Dropdown -->
                             <li class="nav-item dropdown me-3">
                                 <a class="nav-link position-relative" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications">
@@ -148,9 +154,11 @@
                                     </li>
                                 </ul>
                             </li>
-                        }
-                        else
-                        {
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav ms-auto">
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="Identity" asp-page="/Account/Register" aria-label="Register">
                                     <i class="fas fa-user-plus me-1" aria-hidden="true"></i> Register
@@ -161,8 +169,8 @@
                                     <i class="fas fa-sign-in-alt me-1" aria-hidden="true"></i> Login
                                 </a>
                             </li>
-                        }
-                    </ul>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
@@ -236,14 +244,17 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Initialize notification settings BEFORE site.js loads -->
-    <script>
-        window.notificationSettings = {
-            lastCount: @unreadCount,
-            lastCheck: new Date(),
-            userId: '@(SignInManager.IsSignedIn(User) ? UserManager.GetUserId(User) : "")'
-        };
-    </script>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <!-- Initialize notification settings BEFORE site.js loads -->
+        <script>
+            window.notificationSettings = {
+                lastCount: @unreadCount,
+                lastCheck: new Date(),
+                userId: '@UserManager.GetUserId(User)'
+            };
+        </script>
+    }
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

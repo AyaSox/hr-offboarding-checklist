@@ -1,3 +1,45 @@
+// Theme Toggle Functionality
+(function() {
+    // Load saved theme or default to light
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    
+    // Apply theme on page load (before DOM ready for no flash)
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) {
+            if (theme === 'dark') {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+    }
+    
+    // Apply saved theme immediately
+    applyTheme(savedTheme);
+    
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Save preference
+                localStorage.setItem('theme', newTheme);
+                
+                // Apply theme
+                applyTheme(newTheme);
+            });
+        }
+    });
+})();
+
 // Initialize page
 $(document).ready(function() {
     // Initialize toasts
@@ -370,4 +412,14 @@ function toggleAllTasks() {
     const checkboxes = $('.task-checkbox');
     const allChecked = checkboxes.length === checkboxes.filter(':checked').length;
     checkboxes.prop('checked', !allChecked);
+}
+
+function showNotificationToast(count) {
+    // Create and show toast notification for new items
+    console.log(`${count} new notification(s) received`);
+}
+
+function showHighPriorityNotificationToast(notification) {
+    // Show toast for high priority notifications
+    console.log('High priority notification:', notification.title);
 }
