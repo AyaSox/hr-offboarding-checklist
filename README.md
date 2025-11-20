@@ -48,7 +48,7 @@ A comprehensive Employee Offboarding Checklist System designed to streamline the
 - Dashboard Analytics: Overview of all processes with key metrics
 - Responsive Design: Works seamlessly on desktop, tablet, and mobile devices
 
-## Advanced Enterprise Features
+## Features
 
 ### 1. Email Notification System
 - Automated Notifications: Task assignments, completion updates, overdue reminders
@@ -136,13 +136,7 @@ Views/
 - Swagger/OpenAPI
 - Docker
 - Background Services
-
-### Advanced Features
-- Email Services (SMTP-ready)
-- File Management (secure upload/download)
-- Caching (memory cache)
-- Logging (Serilog-ready)
-
+  
 ## Business Workflow
 
 1) Process Initiation
@@ -173,83 +167,7 @@ Views/
 - .NET 8.0 SDK
 - SQL Server Express LocalDB
 
-### Installation
 
-1) Clone the repository
-```bash
-git clone https://github.com/AyaSox/HROffboardingChecklist.git
-cd HROffboardingChecklist
-```
-
-2) Install dependencies
-```bash
-cd OffboardingChecklist
-dotnet restore
-```
-
-3) Update database
-```bash
-dotnet ef database update
-```
-
-4) Run the application
-```bash
-dotnet run
-```
-
-5) Access the application
-- Web App (local): https://localhost:5001
-- API Docs (local): https://localhost:5001/api-docs
-- Live Demo (Render): https://hr-offboarding-checklist.onrender.com/
-
-## Configuration
-
-### Email Settings (appsettings.json)
-```json
-{
-  "EmailSettings": {
-    "SmtpServer": "smtp.company.co.za",
-    "SmtpPort": 587,
-    "Username": "noreply@company.co.za",
-    "Password": "your-password"
-  }
-}
-```
-
-### File Upload Settings
-```json
-{
-  "FileUploadSettings": {
-    "MaxFileSize": 10485760,
-    "AllowedExtensions": [".pdf", ".doc", ".docx", ".jpg", ".png"]
-  }
-}
-```
-
-## Docker Deployment
-
-### Build & Run
-```bash
-docker build -t offboarding-checklist .
-docker run -p 8080:80 offboarding-checklist
-```
-
-### Docker Compose (with SQL Server)
-```yaml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - "8080:80"
-    environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Database=OffboardingDB;User=sa;Password=YourPassword123!
-  db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourPassword123!
-```
 
 ## API Endpoints
 
@@ -296,21 +214,11 @@ services:
 - Path traversal protection
 - Size limit enforcement
 
-### API Security
-- Authentication required for all endpoints
-- CSRF protection
-- SQL injection prevention
-
 ## Contact
 
 Developer Portfolio Project
 - Repository: https://github.com/AyaSox/HROffboardingChecklist
 - Live Demo (Render): https://hr-offboarding-checklist.onrender.com/
-- Documentation: See /Documentation folder for detailed guides
-
----
-
-This project demonstrates enterprise-level .NET development skills including background services, API design, data visualization, file management, email systems, and modern web architecture.
 
 ## Deployment
 
@@ -321,12 +229,3 @@ This application is deployment-ready for cloud platforms.
 - Docker containerization included
 - Environment variable configuration
 - Automatic database migrations
-
-### Environment Variables for Production
-```bash
-DATABASE_PROVIDER=Sqlite
-ASPNETCORE_ENVIRONMENT=Production
-SQLITE_DB_PATH=/opt/render/project/src/data/offboarding.db
-```
-
-The system automatically switches between SQL Server (development) and SQLite (production) based on configuration, ensuring seamless deployment across environments.
